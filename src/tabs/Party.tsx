@@ -472,11 +472,7 @@ function Room({
 
       <Compat members={members} />
 
-      <ShareButton
-        url={roomUrl(partyId)}
-        text={`${party.name || '우리 파티'} 기운 밸런스 보자`}
-        label="링크 보내기"
-      />
+      <ShareButton url={roomUrl(partyId)} label="링크 복사하기" />
       <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
         링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.
         <br />
@@ -635,8 +631,7 @@ function LocalParty({
         <>
           <ShareButton
             url={`${location.origin}${location.pathname}?t=party&p=${encodeParty(members)}`}
-            text="우리 파티 기운 밸런스 보자"
-            label={fromLink ? '나 넣은 새 링크 보내기' : '링크 만들어서 보내기'}
+            label={fromLink ? '나 넣은 새 링크 복사하기' : '링크 만들어서 복사하기'}
           />
           <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
             링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.

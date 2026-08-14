@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { HOUR_UNKNOWN, ZHI, hourOfZhi, zhiIndexOf, zhiRange, type Birth, type Element } from './saju'
 import { COATS, MARK, MARK_COLOR, MASCOT, PIXEL, SPRITES } from './cat'
 
@@ -151,33 +151,26 @@ export function BirthField({
   )
 }
 
-export function ShareButton({
-  url,
-  text,
-  label = '친구한테 보내기',
-}: {
-  url: string
-  text: string
-  label?: string
-}) {
+/**
+ * 누르면 링크를 바로 복사한다.
+ * 공유 시트는 앱을 한 번 더 고르게 만들고, 어차피 대부분 단톡방에 붙여넣는다.
+ */
+export function ShareButton({ url, label = '친구한테 보내기' }: { url: string; label?: string }) {
+  const [copied, setCopied] = useState(false)
   return (
     <button
       onClick={async () => {
         try {
-          // text가 아니라 title로 넘긴다. text는 공유 시트가 url 뒤에 그대로 이어붙여서
-          // "...party=abc 우리 모임 기운..." 한 덩어리가 되고, 링크의 마지막 값이 오염된다.
-          if (navigator.share) await navigator.share({ title: text, url })
-          else {
-            await navigator.clipboard.writeText(url)
-            alert('링크를 복사했어요. 단톡방에 붙여넣으세요.')
-          }
+          await navigator.clipboard.writeText(url)
+          setCopied(true)
+          setTimeout(() => setCopied(false), 2000)
         } catch {
-          // 사용자가 공유 시트를 닫은 경우 — 알릴 것 없다
+          alert('링크를 복사하지 못했어요. 주소창의 주소를 복사해 주세요.')
         }
       }}
       className={`w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
     >
-      {label}
+      {copied ? '링크 복사됨!' : label}
     </button>
   )
 }

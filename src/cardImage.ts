@@ -168,8 +168,8 @@ export function drawCard(ctx: CanvasRenderingContext2D, art: CardArt, host: stri
 }
 
 /**
- * 이미지를 만들어 공유하거나 내려받는다.
- * 모바일은 공유 시트(파일 첨부)가 자연스럽고, 없으면 그냥 다운로드로 떨어진다.
+ * 이미지를 만들어 바로 내려받는다.
+ * '저장'을 눌렀는데 공유 시트가 뜨면 한 번 더 고르게 되니, 공유는 링크 버튼에만 둔다.
  */
 export async function saveCardImage(art: CardArt, filename: string) {
   // 웹폰트가 아직 안 왔으면 캔버스는 조용히 기본 폰트로 그린다. 먼저 기다린다.
@@ -190,21 +190,11 @@ export async function saveCardImage(art: CardArt, filename: string) {
   const blob = await new Promise<Blob | null>((res) => canvas.toBlob(res, 'image/jpeg', 0.92))
   if (!blob) return
 
-  const file = new File([blob], filename, { type: 'image/jpeg' })
-  if (navigator.canShare?.({ files: [file] })) {
-    try {
-      await navigator.share({ files: [file] })
-      return
-    } catch {
-      // 공유 시트를 닫았을 뿐이다. 다운로드로 흘리지 않는다.
-      return
-    }
-  }
-
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
   a.href = url
   a.download = filename
   a.click()
-  URL.revokeObjectURL(url)
+  // 바로 revoke하면 브라우저가 파일을 다 읽기 전에 주소가 죽어 다운로드가 취소되기도 한다.
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
 }

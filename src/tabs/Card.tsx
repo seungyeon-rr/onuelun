@@ -183,11 +183,7 @@ export default function Card({ birth }: { birth: Birth }) {
         >
           이미지로 저장하기
         </button>
-        <ShareButton
-          url={shareUrl}
-          text={`내 운세 유형은 ${grade} ${ganName(saju.dayGan)} "${me.character}"래`}
-          label="링크로 보내기"
-        />
+        <ShareButton url={shareUrl} label="링크 복사하기" />
       </div>
     </div>
   )
