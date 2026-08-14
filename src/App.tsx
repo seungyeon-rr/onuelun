@@ -153,7 +153,7 @@ export default function App() {
         ) : tab === 'daily' ? (
           <Daily birth={birth!} />
         ) : tab === 'card' ? (
-          <Card birth={birth!} />
+          <Card birth={birth!} myName={myName} />
         ) : (
           <Party
             members={members}

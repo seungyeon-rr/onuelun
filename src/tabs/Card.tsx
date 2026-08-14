@@ -8,7 +8,7 @@ import { saveCardImage } from '../cardImage'
 
 const ganName = (g: Gan) => `${GAN_KO[g]}${ELEMENT_KO[elementOfGan(g)]}(${g})`
 
-export default function Card({ birth }: { birth: Birth }) {
+export default function Card({ birth, myName }: { birth: Birth; myName: string }) {
   const saju = calcSaju(birth)
   const me = GAN_META[saju.dayGan]
   const grade = saju.strong ? '신강' : '신약'
@@ -34,7 +34,11 @@ export default function Card({ birth }: { birth: Birth }) {
   const rank = rarityRank(pct)
   const rarityLine = `100명 중 ${Math.round(pct)}명꼴`
 
-  const shareUrl = `${location.origin}${location.pathname}?t=card&b=${encodeBirth(birth)}`
+  // /share를 거치는 건 미리보기 때문이다. 크롤러가 여기서 이름·유형이 박힌 og 태그를 읽고,
+  // 사람은 그 페이지에서 곧바로 카드로 넘어간다.
+  const shareUrl =
+    `${location.origin}/share?b=${encodeBirth(birth)}` +
+    (myName.trim() ? `&n=${encodeURIComponent(myName.trim())}` : '')
 
   const art = {
     el: saju.dayElement,
