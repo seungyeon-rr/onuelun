@@ -4,7 +4,7 @@ import {
   HOUR_UNKNOWN, type Birth, type Element, type Member,
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
-import { assignRoles, pickChemi, type Pair, type Read } from '../party'
+import { allPairs, assignRoles, pickChemi, type Pair, type Read } from '../party'
 import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
@@ -225,6 +225,33 @@ function Balance({ members }: { members: Member[] }) {
           ))}
         </ul>
       </Panel>
+
+      {/* 리포트에 뽑힌 몇 쌍 말고, 우리 파티 전부가 몇 점인지 궁금해한다. */}
+      {read.length > 2 && (
+        <Panel delay={165}>
+          <Label>전체 궁합 점수</Label>
+          <ul className="flex flex-col">
+            {allPairs(read).map((p, i) => (
+              <li
+                key={i}
+                className="flex items-center gap-1.5 border-b border-ink/[0.06] py-2 last:border-0"
+              >
+                <Cat el={p.a.saju.dayElement} size={26} className="shrink-0" />
+                <span className="min-w-0 flex-1 truncate text-[14px]">{p.a.name}</span>
+                <span className="shrink-0 text-[12px] text-ink-faint">×</span>
+                <Cat el={p.b.saju.dayElement} size={26} className="shrink-0" />
+                <span className="min-w-0 flex-1 truncate text-[14px]">{p.b.name}</span>
+                <span
+                  className="shrink-0 font-display text-[14px]"
+                  style={{ color: grade(p.percent).color }}
+                >
+                  {p.percent}점
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      )}
 
       <Panel delay={180}>
         <Label>역할 배정</Label>
