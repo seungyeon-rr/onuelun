@@ -12,9 +12,9 @@ const PARTY_KEY = 'oneulun.party'
 const NAME_KEY = 'oneulun.name'
 
 const TABS = [
-  { key: 'daily', label: '점메추', char: '食' },
-  { key: 'card', label: '내 카드', char: '命' },
-  { key: 'party', label: '파티', char: '群' },
+  { key: 'daily', label: '오늘 운세' },
+  { key: 'card', label: '내 카드' },
+  { key: 'party', label: '파티' },
 ] as const
 
 type TabKey = (typeof TABS)[number]['key']
@@ -168,13 +168,12 @@ export default function App() {
               key={t.key}
               onClick={() => setTab(t.key)}
               aria-current={tab === t.key}
-              className={`flex flex-1 items-center justify-center gap-1.5  py-2.5 transition ${
+              className={`flex flex-1 items-center justify-center py-2.5 transition ${
                 tab === t.key
                   ? 'bg-seal text-white shadow-none'
                   : 'bg-card text-ink-soft shadow-[3px_3px_0_var(--color-ink)]'
               }`}
             >
-              <span className="text-[15px] leading-none">{t.char}</span>
               <span className="font-display text-[15px] leading-none">{t.label}</span>
             </button>
           ))}
