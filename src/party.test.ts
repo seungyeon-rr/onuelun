@@ -20,8 +20,15 @@ describe('케미 고르기', () => {
   it('잘 맞는 쪽과 안 맞는 쪽을 여러 조합으로 준다', () => {
     const { good, bad } = pickChemi(FIVE)
     expect(good.length).toBe(3)
-    expect(bad.length).toBe(3)
+    expect(bad.length).toBeGreaterThan(0)
     expect(good.every((g) => g.score >= Math.max(...bad.map((b) => b.score)))).toBe(true)
+  })
+
+  // 이름만 다르고 같은 태그·같은 문장이 반복되면 리포트가 복붙처럼 보인다.
+  it('같은 태그가 두 번 나오지 않는다', () => {
+    const { good, bad } = pickChemi(FIVE)
+    const tags = [...good, ...bad].map((p) => p.tag)
+    expect(new Set(tags).size).toBe(tags.length)
   })
 
   it('같은 두 사람이 방향만 바꿔 두 번 나오지 않는다', () => {

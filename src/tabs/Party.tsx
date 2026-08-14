@@ -37,8 +37,10 @@ function grade(score: number) {
  * 양쪽에 사람이 다 있는 선만 진하게 그린다. 우리 파티에서 실제로 도는 관계만 보이게.
  */
 function Wuxing({ read }: { read: Read[] }) {
-  const count = Object.fromEntries(ELEMENTS.map((e) => [e, 0])) as Record<Element, number>
-  for (const { saju } of read) count[saju.dayElement]++
+  const who = Object.fromEntries(ELEMENTS.map((e) => [e, [] as string[]])) as Record<Element, string[]>
+  for (const { name, saju } of read) who[saju.dayElement].push(name)
+  const count = Object.fromEntries(ELEMENTS.map((e) => [e, who[e].length])) as Record<Element, number>
+  // ponytail: 이름은 다 쓴다. 사람이 많으면 옆 꼭짓점 이름과 붙을 수 있음. 그때 줄바꿈 넣기.
 
   const at = ELEMENTS.map((_, i) => {
     const rad = ((i * 72 - 90) * Math.PI) / 180
@@ -74,7 +76,7 @@ function Wuxing({ read }: { read: Read[] }) {
 
   return (
     <div className="mb-4">
-      <svg viewBox="-13 -12 126 124" className="mx-auto block w-full max-w-[250px]" aria-hidden>
+      <svg viewBox="-26 -12 152 124" className="mx-auto block w-full max-w-[280px] overflow-visible" aria-hidden>
         <defs>
           {head('born', 'var(--color-ink-soft)')}
           {head('kill', 'var(--color-seal)')}
@@ -112,9 +114,9 @@ function Wuxing({ read }: { read: Read[] }) {
                 <text
                   x={50 + (at[i][0] - 50) * 1.42} y={50 + (at[i][1] - 50) * 1.42}
                   textAnchor="middle" dominantBaseline="central"
-                  fontSize="8" fill="var(--color-ink-soft)"
+                  fontSize="7" fill="var(--color-ink-soft)"
                 >
-                  {n}명
+                  {who[el].join('·')}
                 </text>
               )}
             </g>

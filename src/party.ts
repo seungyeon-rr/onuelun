@@ -4,13 +4,18 @@ import { PAIR_CHEMI, PARTY_ROLE } from './data'
 export type Read = { name: string; saju: ReturnType<typeof calcSaju> }
 export type Pair = { i: number; j: number; a: Read; b: Read } & (typeof PAIR_CHEMI)[ShiShen]
 
-/** 이미 두 자리 다 찬 조합은 건너뛴다. 같은 사람만 계속 나오면 리포트가 심심해진다. */
-function greedy(ranked: Pair[], take: number) {
+/**
+ * 이미 두 자리 다 찬 조합은 건너뛴다. 같은 사람만 계속 나오면 리포트가 심심해진다.
+ * 태그도 한 번씩만 쓴다. 같은 '먹부림 듀오'가 이름만 바뀐 채 두 번 뜨면 복붙으로 보인다.
+ */
+function greedy(ranked: Pair[], take: number, tags: Set<string>) {
   const used = new Set<number>()
   const out: Pair[] = []
   for (const p of ranked) {
     if (out.length >= take) break
     if (used.has(p.i) && used.has(p.j)) continue
+    if (tags.has(p.tag)) continue
+    tags.add(p.tag)
     used.add(p.i)
     used.add(p.j)
     out.push(p)
@@ -38,9 +43,10 @@ export function pickChemi(read: Read[], take = 3) {
       return true
     })
 
-  const good = greedy(ranked, take)
+  const tags = new Set<string>()
+  const good = greedy(ranked, take, tags)
   const rest = ranked.filter((p) => !good.includes(p))
-  return { good, bad: greedy(rest.reverse(), take) }
+  return { good, bad: greedy(rest.reverse(), take, tags) }
 }
 
 /**
