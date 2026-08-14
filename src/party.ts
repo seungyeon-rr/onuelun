@@ -26,16 +26,6 @@ export function percentOf(a: Read, b: Read) {
 }
 
 /**
- * 두 사람씩 짝지은 전부. 점수 높은 순.
- * ponytail: 30명이면 435줄이라 화면이 길어진다. 그때 접거나 잘라내면 된다.
- */
-export function allPairs(read: Read[]) {
-  return read
-    .flatMap((a, i) => read.slice(i + 1).map((b) => ({ a, b, percent: percentOf(a, b) })))
-    .sort((x, y) => y.percent - x.percent)
-}
-
-/**
  * 이미 두 자리 다 찬 조합은 건너뛴다. 같은 사람만 계속 나오면 리포트가 심심해진다.
  * 태그도 한 번씩만 쓴다. 같은 '먹부림 듀오'가 이름만 바뀐 채 두 번 뜨면 복붙으로 보인다.
  */

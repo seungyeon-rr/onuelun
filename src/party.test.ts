@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcSaju, type Birth } from './saju'
-import { allPairs, assignRoles, percentOf, pickChemi } from './party'
+import { assignRoles, percentOf, pickChemi } from './party'
 
 const read = (list: [string, Birth][]) =>
   list.map(([name, birth]) => ({ name, saju: calcSaju(birth) }))
@@ -56,14 +56,6 @@ describe('궁합 점수', () => {
   it('누구를 먼저 놓든 같은 점수가 나온다', () => {
     const [a, b] = FIVE
     expect(percentOf(a, b)).toBe(percentOf(b, a))
-  })
-
-  it('모든 조합을 한 번씩만 준다', () => {
-    const pairs = allPairs(FIVE)
-    expect(pairs.length).toBe((5 * 4) / 2)
-    const keys = pairs.map((p) => [p.a.name, p.b.name].sort().join('-'))
-    expect(new Set(keys).size).toBe(keys.length)
-    expect(pairs.map((p) => p.percent)).toEqual([...pairs.map((p) => p.percent)].sort((a, b) => b - a))
   })
 
   it('모든 조합이 0~100 안에 든다', () => {

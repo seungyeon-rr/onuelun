@@ -4,7 +4,7 @@ import {
   HOUR_UNKNOWN, type Birth, type Element, type Member,
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
-import { allPairs, assignRoles, pickChemi, type Pair, type Read } from '../party'
+import { assignRoles, pickChemi, type Pair, type Read } from '../party'
 import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
@@ -226,33 +226,6 @@ function Balance({ members }: { members: Member[] }) {
         </ul>
       </Panel>
 
-      {/* 리포트에 뽑힌 몇 쌍 말고, 우리 파티 전부가 몇 점인지 궁금해한다. */}
-      {read.length > 2 && (
-        <Panel delay={165}>
-          <Label>전체 궁합 점수</Label>
-          <ul className="flex flex-col">
-            {allPairs(read).map((p, i) => (
-              <li
-                key={i}
-                className="flex items-center gap-1.5 border-b border-ink/[0.06] py-2 last:border-0"
-              >
-                <Cat el={p.a.saju.dayElement} size={26} className="shrink-0" />
-                <span className="min-w-0 flex-1 truncate text-[14px]">{p.a.name}</span>
-                <span className="shrink-0 text-[12px] text-ink-faint">×</span>
-                <Cat el={p.b.saju.dayElement} size={26} className="shrink-0" />
-                <span className="min-w-0 flex-1 truncate text-[14px]">{p.b.name}</span>
-                <span
-                  className="shrink-0 font-display text-[14px]"
-                  style={{ color: grade(p.percent).color }}
-                >
-                  {p.percent}점
-                </span>
-              </li>
-            ))}
-          </ul>
-        </Panel>
-      )}
-
       <Panel delay={180}>
         <Label>역할 배정</Label>
         <ul className="flex flex-col gap-2.5">
@@ -411,7 +384,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * 2명이 모이면 결과부터 보여주고, 사람 넣는 칸은 결과 밑으로 접는다.
+ * 2명이 모이면 파티원 목록과 입력 칸을 파티명 밑에 접어 두고, 바로 결과를 보여준다.
  * 궁합 보러 들어왔는데 입력 폼을 지나쳐 스크롤해야 하는 게 이 화면의 제일 큰 불편이었다.
  * ponytail: <details>라 열림 상태를 따로 안 들고 있는다.
  */
@@ -430,16 +403,16 @@ function Compat({ members, children }: { members: Member[]; children: React.Reac
 
   return (
     <>
-      <Balance members={members} />
       <details className="group">
         <summary
           className={`flex cursor-pointer list-none items-center justify-center gap-1 border-[3px] border-ink bg-card py-3 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] [&::-webkit-details-marker]:hidden ${PRESS}`}
         >
-          파티원 추가하기
+          파티원 {members.length}명 <span className="text-ink-faint">· 넣고 빼기</span>
           <span className="inline-block text-ink-faint transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div className="mt-2.5 flex flex-col gap-2.5">{children}</div>
       </details>
+      <Balance members={members} />
     </>
   )
 }
@@ -512,19 +485,18 @@ function Room({
         )}
       </Panel>
 
-      {members.length > 0 && (
-        <MemberList
-          members={members}
-          // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
-          onRemove={(i) => {
-            const m = members[i]
-            if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
-            else alert('파티를 만든 사람만 뺄 수 있어요.')
-          }}
-        />
-      )}
-
       <Compat members={members}>
+        {members.length > 0 && (
+          <MemberList
+            members={members}
+            // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
+            onRemove={(i) => {
+              const m = members[i]
+              if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
+              else alert('파티를 만든 사람만 뺄 수 있어요.')
+            }}
+          />
+        )}
         <AddMember
           onAdd={add}
           myBirth={myBirth}
@@ -681,11 +653,10 @@ function LocalParty({
         </Panel>
       )}
 
-      {members.length > 0 && (
-        <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
-      )}
-
       <Compat members={members}>
+        {members.length > 0 && (
+          <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
+        )}
         <AddMember
           onAdd={(m) => setMembers([...members, m])}
           myBirth={myBirth}
