@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
-  calcSaju, encodeBirth, encodeParty, ELEMENTS, ELEMENT_KO,
+  calcSaju, encodeBirth, encodeParty, ELEMENTS, ELEMENT_KO, josa,
   HOUR_UNKNOWN, type Birth, type Element, type Member,
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
@@ -444,7 +444,8 @@ function MyParties({
                 {p.mine ? (
                   <button
                     onClick={() => {
-                      if (confirm(`"${partyLabel(p)}"을 삭제할까요? 링크도 안 열려요.`)) remove(p.id)
+                      if (confirm(`${josa(partyLabel(p), '을를')} 삭제할까요? 링크도 안 열려요.`))
+                        remove(p.id)
                     }}
                     aria-label={`${partyLabel(p)} 삭제`}
                     className="px-1 text-[14px] leading-none text-ink-faint"

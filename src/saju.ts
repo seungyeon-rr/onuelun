@@ -196,6 +196,17 @@ export function decodeParty(s: string): Member[] {
     .filter((m): m is Member => m !== null)
 }
 
+/**
+ * 이름 뒤 조사는 받침 유무로 갈린다. josa('가람', '은는') → '가람은'.
+ * 짝은 항상 [받침 있을 때, 없을 때] 순서다.
+ * ponytail: 한글이 아니면 받침 없음으로 본다. 'Kate는'은 자연스럽고 '민준이'만 맞으면 된다.
+ */
+export function josa(word: string, pair: '은는' | '이가' | '을를' | '과와'): string {
+  const last = word.trim().slice(-1).charCodeAt(0)
+  const hangul = last >= 0xac00 && last <= 0xd7a3
+  return word + pair[hangul && (last - 0xac00) % 28 !== 0 ? 0 : 1]
+}
+
 /** 날짜가 바뀌기 전까지 같은 값을 뽑기 위한 결정론적 해시 (FNV-1a) */
 export function seededPick<T>(list: T[], seed: string): T {
   let h = 2166136261

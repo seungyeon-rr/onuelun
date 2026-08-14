@@ -1,4 +1,4 @@
-import type { Element, Gan, ShiShen } from './saju'
+import { josa, type Element, type Gan, type ShiShen } from './saju'
 
 /** 추천 하나. what은 결과, why는 왜 하필 오늘 그건지. why가 이 앱의 본체다. */
 export type Tip = { what: string; why: string }
@@ -401,16 +401,16 @@ export const PARTY_ROLE: Record<Gan, { strong: Role; weak: Role }> = {
  * score는 찰떡(높음)/불꽃(낮음) 한 쌍씩 뽑는 데만 쓴다.
  */
 export const PAIR_CHEMI: Record<ShiShen, { tag: string; score: number; line: (a: string, b: string) => string }> = {
-  比肩: { tag: '거울 콤비', score: 6, line: (a, b) => `${a}랑 ${b}는 성격이 너무 같아서 편합니다. 대신 메뉴 정할 땐 둘 다 절대 안 굽혀요.` },
-  劫財: { tag: '지갑 경보', score: 2, line: (a, b) => `${a}가 ${b} 만나면 돈이 샙니다. 계산은 늘 한쪽이 하고, 그게 누군지 둘 다 알아요.` },
-  食神: { tag: '먹부림 듀오', score: 9, line: (a, b) => `${a}는 ${b} 앞에서 제일 잘 놉니다. 맛집 얘기가 두 시간째 안 끊겨요.` },
-  傷官: { tag: '팩폭 라인', score: 4, line: (a, b) => `${a}가 ${b}한테 할 말 다 합니다. 웃기긴 한데 한 명은 집 가서 곱씹어요.` },
-  偏財: { tag: '사고 유발 조합', score: 7, line: (a, b) => `${a}가 ${b} 데리고 일을 벌입니다. 즉흥 여행 예약은 이 둘이 붙었을 때 나옵니다.` },
-  正財: { tag: '총무 라인', score: 9, line: (a, b) => `${a}가 ${b}를 착실히 챙깁니다. 회비 관리 맡기면 1원까지 맞아요.` },
-  偏官: { tag: '긴장 라인', score: 1, line: (a, b) => `${b}만 오면 ${a}가 갑자기 정신을 차립니다. 편한 사이는 아닌데 일은 제일 잘 돼요.` },
-  正官: { tag: '어른 모드', score: 6, line: (a, b) => `${a}는 ${b} 앞에선 지각을 안 합니다. 이 둘이 있으면 모임이 제시간에 시작해요.` },
-  偏印: { tag: '혼자 추측 라인', score: 3, line: (a, b) => `${a}가 ${b} 속을 혼자 짐작하다 지칩니다. 그냥 물어보면 3초면 끝날 일이에요.` },
-  正印: { tag: '기댐 라인', score: 9, line: (a, b) => `${a}가 힘들면 제일 먼저 연락하는 게 ${b}입니다. 받는 쪽은 그걸 은근히 좋아해요.` },
+  比肩: { tag: '거울 콤비', score: 6, line: (a, b) => `${josa(a, '과와')} ${josa(b, '은는')} 성격이 너무 같아서 편합니다. 대신 메뉴 정할 땐 둘 다 절대 안 굽혀요.` },
+  劫財: { tag: '지갑 경보', score: 2, line: (a, b) => `${josa(a, '이가')} ${josa(b, '을를')} 만나면 돈이 샙니다. 계산은 늘 한쪽이 하고, 그게 누군지 둘 다 알아요.` },
+  食神: { tag: '먹부림 듀오', score: 9, line: (a, b) => `${josa(a, '은는')} ${b} 앞에서 제일 잘 놉니다. 맛집 얘기가 두 시간째 안 끊겨요.` },
+  傷官: { tag: '팩폭 라인', score: 4, line: (a, b) => `${josa(a, '이가')} ${b}한테 할 말 다 합니다. 웃기긴 한데 한 명은 집 가서 곱씹어요.` },
+  偏財: { tag: '사고 유발 조합', score: 7, line: (a, b) => `${josa(a, '이가')} ${josa(b, '을를')} 데리고 일을 벌입니다. 즉흥 여행 예약은 이 둘이 붙었을 때 나옵니다.` },
+  正財: { tag: '총무 라인', score: 9, line: (a, b) => `${josa(a, '이가')} ${josa(b, '을를')} 착실히 챙깁니다. 회비 관리 맡기면 1원까지 맞아요.` },
+  偏官: { tag: '긴장 라인', score: 1, line: (a, b) => `${b}만 오면 ${josa(a, '이가')} 갑자기 정신을 차립니다. 편한 사이는 아닌데 일은 제일 잘 돼요.` },
+  正官: { tag: '어른 모드', score: 6, line: (a, b) => `${josa(a, '은는')} ${b} 앞에선 지각을 안 합니다. 이 둘이 있으면 모임이 제시간에 시작해요.` },
+  偏印: { tag: '혼자 추측 라인', score: 3, line: (a, b) => `${josa(a, '이가')} ${josa(b, '이가')} 무슨 생각인지 혼자 짐작하다 지칩니다. 그냥 물어보면 3초면 끝날 일이에요.` },
+  正印: { tag: '기댐 라인', score: 9, line: (a, b) => `${josa(a, '이가')} 힘들면 제일 먼저 연락하는 사람이 ${b}입니다. 받는 쪽은 그걸 은근히 좋아해요.` },
 }
 
 /** 한 오행으로 쏠린 모임의 별명. 균형 잡혔으면 BALANCED_TYPE. */

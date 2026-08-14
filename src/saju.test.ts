@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { Solar } from 'lunar-javascript'
 import {
-  calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, seededPick,
+  calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
   GANS, SHISHEN, HOUR_UNKNOWN, SHISHEN_KO,
 } from './saju'
 import { GAN_META } from './data'
@@ -127,5 +127,29 @@ describe('추천 뽑기', () => {
     const list = Array.from({ length: 20 }, (_, i) => i)
     const picks = new Set(Array.from({ length: 30 }, (_, i) => seededPick(list, `seed${i}`)))
     expect(picks.size).toBeGreaterThan(5)
+  })
+})
+
+describe('조사', () => {
+  it('받침이 있으면 은·이·을·과', () => {
+    expect(josa('가람', '은는')).toBe('가람은')
+    expect(josa('민준', '이가')).toBe('민준이')
+    expect(josa('다인', '을를')).toBe('다인을')
+    expect(josa('나은', '은는')).toBe('나은은')
+    expect(josa('우리 모임', '을를')).toBe('우리 모임을')
+    expect(josa('3팀 점심', '과와')).toBe('3팀 점심과')
+  })
+
+  it('받침이 없으면 는·가·를·와', () => {
+    expect(josa('서아', '은는')).toBe('서아는')
+    expect(josa('지수', '이가')).toBe('지수가')
+    expect(josa('제나', '을를')).toBe('제나를')
+    expect(josa('유나', '과와')).toBe('유나와')
+  })
+
+  // 한글이 아니면 받침 없음으로 본다. 'Kate는'이 'Kate은'보다 낫다.
+  it('영문·이모지 이름도 문장이 깨지지 않는다', () => {
+    expect(josa('Kate', '은는')).toBe('Kate는')
+    expect(josa('🐱', '이가')).toBe('🐱가')
   })
 })
