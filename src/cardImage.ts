@@ -8,8 +8,10 @@ import type { Element } from './saju'
  */
 export type CardArt = {
   el: Element
-  /** '신강 신금(辛)' */
-  type: string
+  /** '100명 중 4명꼴' — 크게 박는 한 줄 */
+  rarity: string
+  /** '20종 중 3번째로 드문 유형' — 그 밑에 작게 */
+  rarityNote: string
   /** '꺾일지언정 안 굽는 대장나무' */
   character: string
   traits: string
@@ -20,6 +22,20 @@ export type CardArt = {
 const W = 900
 const H = 1200
 const PAD = 60
+
+/**
+ * 자리를 한곳에 모아 둔다. 그림과 글이 겹치는지는 눈으로만 알 수 있는 종류의 버그라,
+ * 테스트가 같은 값을 보고 검사할 수 있어야 한다.
+ */
+export const LAYOUT = {
+  W,
+  H,
+  sprite: { px: 18, x: (W - 26 * 18) / 2, y: 250, w: 26 * 18, h: 21 * 18 },
+  boxH: 170,
+  get boxTop() {
+    return H - 90 - this.boxH
+  },
+}
 
 const INK = '#3E362F'
 const INK_SOFT = '#7D7168'
@@ -114,20 +130,20 @@ export function drawCard(ctx: CanvasRenderingContext2D, art: CardArt, host: stri
   ctx.fillStyle = INK_FAINT
   ctx.fillText('오늘운 · 사주로 보는 오늘의 나', W / 2, 110)
 
-  centered(ctx, art.type, 190, display(52), INK)
+  // 한 줄에 다 넣으면 접혀서 '유형'만 다음 줄에 남는다. 크기를 갈라 두 줄로 박는다.
+  centered(ctx, art.rarity, 175, display(42), INK)
+  centered(ctx, art.rarityNote, 218, body(26), INK_SOFT)
 
-  // 26x21 스프라이트. 폭이 화면을 넘지 않는 선에서 최대한 크게.
-  const px = 20
-  sprite(ctx, art.el, (W - 26 * px) / 2, 230, px)
+  sprite(ctx, art.el, LAYOUT.sprite.x, LAYOUT.sprite.y, LAYOUT.sprite.px)
 
   // 캐릭터명과 traits는 길이에 따라 두 줄까지 늘어난다. 아래로 흐르게 두고,
   // 찰떡/상극 판은 바닥에 붙여서 둘이 만나지 않게 한다.
-  const y = centered(ctx, art.character, 700, display(46), SEAL)
+  const y = centered(ctx, art.character, 690, display(46), SEAL)
   centered(ctx, art.traits, y + 20, body(28), INK_SOFT)
 
   const boxW = (W - PAD * 2 - 24) / 2
-  const boxH = 170
-  const boxY = H - 90 - boxH
+  const boxH = LAYOUT.boxH
+  const boxY = LAYOUT.boxTop
   ;[
     { x: PAD, tag: '찰떡', data: art.best, color: INK },
     { x: PAD + boxW + 24, tag: '상극', data: art.worst, color: SEAL },

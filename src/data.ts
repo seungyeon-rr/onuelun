@@ -367,6 +367,31 @@ export const GAN_META: Record<Gan, GanMeta> = {
  * 모임에서 이 사람이 자동으로 맡게 되는 역할. 일간 10종 그대로 간다.
  * "나 뒷정리 담당이래ㅋㅋ" 하고 캡처해서 단톡방에 던지는 게 이 앱의 공유 동력이다.
  */
+/**
+ * 유형 20종(일간 10 × 신강/신약)이 나오는 비율(%).
+ * 1960~2009년 모든 날짜 × (십이지시 + 시 모름) 237,419건을 실제로 계산해 나온 값이다.
+ * ponytail: 달력 균등 분포지 실제 출생 분포가 아니다. 계절별 출생 편차까지는 안 본다.
+ * 갑·을·병·정·임·계는 신강이 드물고 무·기·경·신은 반대다. 월지가 판정을 지배해서 갈린다.
+ */
+export const RARITY: Record<Gan, { strong: number; weak: number }> = {
+  甲: { strong: 3.94, weak: 6.06 },
+  乙: { strong: 3.79, weak: 6.21 },
+  丙: { strong: 3.91, weak: 6.08 },
+  丁: { strong: 3.92, weak: 6.08 },
+  戊: { strong: 5.98, weak: 4.02 },
+  己: { strong: 5.96, weak: 4.05 },
+  庚: { strong: 5.92, weak: 4.09 },
+  辛: { strong: 6.04, weak: 3.96 },
+  壬: { strong: 4.01, weak: 5.99 },
+  癸: { strong: 4.07, weak: 5.93 },
+}
+
+/** 내 유형이 20종 중 몇 번째로 드문지. 1위가 제일 귀하다. */
+export function rarityRank(pct: number): number {
+  const all = Object.values(RARITY).flatMap((r) => [r.strong, r.weak])
+  return all.filter((p) => p < pct).length + 1
+}
+
 export type Role = { role: string; line: string }
 
 /** 일간이 겹쳐도 강약이 다르면 다른 역할이 나온다. 열 명까진 거의 안 겹친다. */

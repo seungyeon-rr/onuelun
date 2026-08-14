@@ -5,7 +5,7 @@ import {
   GANS, SHISHEN, ELEMENTS, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen, elementOfGan,
   zhiIndexOf, hourOfZhi, zhiRange, isOffDay,
 } from './saju'
-import { GAN_META, PAIR_CHEMI, DAILY } from './data'
+import { GAN_META, PAIR_CHEMI, DAILY, RARITY, rarityRank } from './data'
 
 describe('팔자 계산', () => {
   it('알려진 생년월일시의 사주가 일치한다', () => {
@@ -246,5 +246,19 @@ describe('쉬는 날', () => {
         expect(list.filter((t) => !t.office).length).toBeGreaterThan(0)
       }
     }
+  })
+})
+
+describe('유형 희귀도', () => {
+  const all = Object.values(RARITY).flatMap((r) => [r.strong, r.weak])
+
+  it('20종 비율을 다 더하면 100%다', () => {
+    expect(all).toHaveLength(20)
+    expect(Math.abs(all.reduce((a, b) => a + b, 0) - 100)).toBeLessThan(0.5)
+  })
+
+  it('제일 드문 게 1위, 제일 흔한 게 20위다', () => {
+    expect(rarityRank(Math.min(...all))).toBe(1)
+    expect(rarityRank(Math.max(...all))).toBe(20)
   })
 })

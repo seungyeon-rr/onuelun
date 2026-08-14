@@ -2,7 +2,7 @@ import {
   calcSaju, encodeBirth, elementOfGan, ganOfShiShen,
   ELEMENTS, ELEMENT_KO, GAN_KO, type Birth, type Gan,
 } from '../saju'
-import { AXES, GAN_META, ELEMENT_META } from '../data'
+import { AXES, GAN_META, ELEMENT_META, RARITY, rarityRank } from '../data'
 import { Panel, Label, ShareButton, Cat, PRESS } from '../ui'
 import { saveCardImage } from '../cardImage'
 
@@ -29,11 +29,17 @@ export default function Card({ birth }: { birth: Birth }) {
   const mostEl = ELEMENTS.reduce((a, b) => (saju.elements[b] > saju.elements[a] ? b : a))
   const noneEls = ELEMENTS.filter((e) => saju.elements[e] === 0)
 
+  // 20종이 3.8~6.2%로 촘촘해서 퍼센트만으론 감이 안 온다. 사람 수로 바꿔 말한다.
+  const pct = RARITY[saju.dayGan][saju.strong ? 'strong' : 'weak']
+  const rank = rarityRank(pct)
+  const rarityLine = `100명 중 ${Math.round(pct)}명꼴`
+
   const shareUrl = `${location.origin}${location.pathname}?t=card&b=${encodeBirth(birth)}`
 
   const art = {
     el: saju.dayElement,
-    type: `${grade} ${ganName(saju.dayGan)}`,
+    rarity: rarityLine,
+    rarityNote: `20종 중 ${rank}번째로 드문 유형`,
     character: me.character,
     traits: me.traits,
     best: { label: ganName(best), character: GAN_META[best].character },
@@ -43,7 +49,9 @@ export default function Card({ birth }: { birth: Birth }) {
   return (
     <div className="flex flex-col gap-2.5">
       <Panel className="text-center">
-        <p className="text-[12px] font-semibold text-ink-faint">내 유형</p>
+        <p className="text-[12px] font-semibold text-ink-faint">
+          내 유형 · {rarityLine} · 20종 중 {rank}번째로 드묾
+        </p>
         <p className="mt-2 font-display text-[22px] tracking-tight">
           <span className="text-[17px] text-ink-faint">{grade}</span> {ganName(saju.dayGan)}
         </p>

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
-import { drawCard, wrapText, type CardArt } from './cardImage'
-import { GAN_META } from './data'
+import { drawCard, wrapText, LAYOUT, type CardArt } from './cardImage'
+import { GAN_META, RARITY, rarityRank } from './data'
 import { GANS, ganOfShiShen, elementOfGan, GAN_KO, ELEMENT_KO, type Gan } from './saju'
 
 const W = 900
@@ -50,7 +50,8 @@ function everyCard(): CardArt[] {
       const worst = ganOfShiShen(g, strong ? '劫財' : '偏官')
       return {
         el: elementOfGan(g),
-        type: `${strong ? '신강' : '신약'} ${ganName(g)}`,
+        rarity: `100명 중 ${Math.round(RARITY[g][strong ? 'strong' : 'weak'])}명꼴`,
+        rarityNote: `20종 중 ${rarityRank(RARITY[g][strong ? 'strong' : 'weak'])}번째로 드문 유형`,
         character: GAN_META[g].character,
         traits: GAN_META[g].traits,
         best: { label: ganName(best), character: GAN_META[best].character },
@@ -82,8 +83,20 @@ describe('카드 이미지', () => {
     }
   })
 
+  it('글자가 고양이 위로 올라타지 않는다', () => {
+    const { x, y, w, h } = LAYOUT.sprite
+    for (const art of everyCard()) {
+      const { ctx, drawn } = fakeCtx()
+      drawCard(ctx as unknown as CanvasRenderingContext2D, art, 'oneulun.pages.dev')
+      for (const t of drawn.filter((b) => b.text !== undefined)) {
+        const hit = t.x < x + w && t.x + t.w > x && t.y < y + h && t.y + t.h > y
+        expect(hit, `"${t.text}"가 고양이를 덮는다`).toBe(false)
+      }
+    }
+  })
+
   it('캐릭터 설명이 찰떡·상극 판을 침범하지 않는다', () => {
-    const BOX_TOP = H - 90 - 170
+    const BOX_TOP = LAYOUT.boxTop
     for (const art of everyCard()) {
       const { ctx, drawn } = fakeCtx()
       drawCard(ctx as unknown as CanvasRenderingContext2D, art, 'oneulun.pages.dev')
