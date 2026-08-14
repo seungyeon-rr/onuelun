@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest'
 import { Solar } from 'lunar-javascript'
 import {
   calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
-  GANS, SHISHEN, HOUR_UNKNOWN, SHISHEN_KO,
+  GANS, SHISHEN, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen,
 } from './saju'
-import { GAN_META } from './data'
+import { GAN_META, PAIR_CHEMI } from './data'
 
 describe('팔자 계산', () => {
   it('알려진 생년월일시의 사주가 일치한다', () => {
@@ -151,5 +151,26 @@ describe('조사', () => {
   it('영문·이모지 이름도 문장이 깨지지 않는다', () => {
     expect(josa('Kate', '은는')).toBe('Kate는')
     expect(josa('🐱', '이가')).toBe('🐱가')
+  })
+})
+
+// 앞으로 7일 미리보기는 "최고날과 최악날이 항상 다른 날"이라는 전제 위에 서 있다.
+// 일간이 매일 한 칸씩 도는 한 7일 안에서 십신은 겹치지 않는다.
+describe('앞으로 7일', () => {
+  it('연속 7일의 십신이 서로 다르다', () => {
+    for (const gan of GANS) {
+      for (const start of [new Date(2026, 0, 1), new Date(2026, 7, 14), new Date(2027, 11, 25)]) {
+        const week = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(start)
+          d.setDate(start.getDate() + i)
+          return todayShiShen(gan, d)
+        })
+        expect(new Set(week).size).toBe(7)
+      }
+    }
+  })
+
+  it('7일치 점수를 매길 십신에 빠진 게 없다', () => {
+    for (const s of SHISHEN) expect(PAIR_CHEMI[s].score).toBeGreaterThan(0)
   })
 })

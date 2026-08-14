@@ -1,6 +1,6 @@
 import { calcSaju, dateKey, ganOfDay, seededPick, todayShiShen, SHISHEN_KO, type Birth } from '../saju'
-import { DAILY, type Tip } from '../data'
-import { Panel, Seal, Cat } from '../ui'
+import { DAILY, PAIR_CHEMI, type Tip } from '../data'
+import { Panel, Label, Seal, Cat } from '../ui'
 
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -15,6 +15,19 @@ export default function Daily({ birth }: { birth: Birth }) {
   const menu = seededPick(f.menu, seed + 'menu')
   const drink = seededPick(f.drink, seed + 'drink')
   const avoid = seededPick(f.avoid, seed + 'avoid')
+
+  // 오늘부터 7일. 일간이 매일 바뀌니 십신 7개도 서로 다르고, 최고날과 최악날이 겹치지 않는다.
+  // ponytail: 날의 점수는 사람 궁합 점수를 그대로 쓴다. 같은 십신 성격을 재는 거라 방향이 안 어긋난다.
+  const week = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today)
+    d.setDate(today.getDate() + i)
+    const s = todayShiShen(saju.dayGan, d)
+    return { d, s, score: PAIR_CHEMI[s].score, today: i === 0 }
+  })
+  const best = week.reduce((a, b) => (b.score > a.score ? b : a))
+  const worst = week.reduce((a, b) => (b.score < a.score ? b : a))
+  const dayName = (w: (typeof week)[number]) =>
+    w.today ? '오늘' : `${WEEKDAY[w.d.getDay()]}요일`
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -67,6 +80,51 @@ export default function Daily({ birth }: { birth: Birth }) {
           </span>
         </div>
         <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{avoid.why}</p>
+      </Panel>
+
+      <Panel delay={200}>
+        <Label>앞으로 7일</Label>
+        <div className="flex items-end gap-1.5">
+          {week.map((w) => (
+            <div key={+w.d} className="flex flex-1 flex-col items-center gap-1.5">
+              <div className="flex h-12 w-full items-end">
+                <div
+                  className={`w-full border-[2px] border-ink ${
+                    w === best ? 'bg-seal' : w === worst ? 'bg-hanji-deep' : 'bg-ink-faint'
+                  }`}
+                  style={{ height: `${20 + w.score * 8}%` }}
+                />
+              </div>
+              <span
+                className={`font-display text-[12px] ${w.today ? 'text-ink' : 'text-ink-faint'}`}
+              >
+                {WEEKDAY[w.d.getDay()]}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-3.5 divide-y divide-ink/[0.06] border-t border-ink/[0.08] pt-1">
+          {(
+            [
+              [`${dayName(best)}엔 이걸`, best, 'text-ink'],
+              [`${dayName(worst)}엔 이것만`, worst, 'text-seal'],
+            ] as const
+          ).map(([label, w, tone]) => (
+            <div key={label} className="py-3.5 last:pb-0">
+              <div className="flex items-baseline justify-between gap-3">
+                <span className="shrink-0 font-display text-[13px] text-ink-faint">{label}</span>
+                <span className={`text-right font-display text-[17px] leading-tight ${tone}`}>
+                  {DAILY[w.s].week.what}
+                </span>
+              </div>
+              <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+                <span className="text-ink-faint">{SHISHEN_KO[w.s]} 운. </span>
+                {DAILY[w.s].week.why}
+              </p>
+            </div>
+          ))}
+        </div>
       </Panel>
 
       <p className="px-2 pb-2 text-center text-[14px] leading-relaxed text-ink-faint">
