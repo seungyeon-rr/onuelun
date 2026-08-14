@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase, toKoreanError } from '../supabase'
 
-/** 카카오 로그인 세션. supabase가 null이면 항상 로그아웃 상태로 동작한다. */
 export function useAuth() {
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(supabase !== null)
@@ -25,7 +24,6 @@ export function useAuth() {
     session,
     loading,
     userId: session?.user.id ?? null,
-    /** 모임에 나를 넣을 때 쓰는 이름. 비로그인이면 '나'. */
     myName: nickname?.trim().slice(0, 12) || '나',
     signIn: async () => {
       if (!supabase) return

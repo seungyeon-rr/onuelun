@@ -1,6 +1,5 @@
 import { Solar } from 'lunar-javascript'
 
-/** 태어난 시를 모르는 경우 */
 export const HOUR_UNKNOWN = -1
 
 export type Birth = {
@@ -23,11 +22,8 @@ export type ShiShen = (typeof SHISHEN)[number]
 export type Saju = {
   /** 년·월·일·시 간지. 시를 모르면 3개 */
   pillars: string[]
-  /** 일간 (甲~癸) */
   dayGan: Gan
-  /** 일간의 오행 */
   dayElement: Element
-  /** 팔자 전체 오행 개수 */
   elements: Record<Element, number>
   /** 팔자에서 뽑은 십신 개수 (일간 자신은 제외) */
   shishen: Record<ShiShen, number>
@@ -149,12 +145,10 @@ export function calcSaju(b: Birth): Saju {
   }
 }
 
-/** 해당 날짜의 일간 */
 export function ganOfDay(date: Date): string {
   return Solar.fromDate(date).getLunar().getDayInGanZhi()[0]
 }
 
-/** 오늘 나에게 들어오는 십신 */
 export function todayShiShen(dayGan: string, date: Date): ShiShen {
   return shishenOf(dayGan, ganOfDay(date))
 }

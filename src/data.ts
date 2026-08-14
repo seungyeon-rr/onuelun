@@ -4,11 +4,9 @@ import type { Element, Gan, ShiShen } from './saju'
 export type Tip = { what: string; why: string }
 
 export type DailyFortune = {
-  /** 오늘 기운의 별명 */
   mood: string
   /** 십신을 한 단어로 줄인 한자. "편관(壓力) 운이 강함"처럼 쓴다. */
   key: string
-  /** 한 줄 요약 */
   line: string
   menu: Tip[]
   drink: Tip[]
@@ -244,11 +242,8 @@ export const AXES: AxisMeta[] = [
 export type GanMeta = {
   /** 일간을 현대어로 재해석한 캐릭터명 */
   character: string
-  /** 한 줄 특징 */
   traits: string
-  /** 잘 쓰일 때 */
   strength: string
-  /** 과할 때 */
   weakness: string
   /** 남이 나를 다루는 법 */
   manual: string

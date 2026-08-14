@@ -29,7 +29,6 @@ export default function App() {
     return readParams().get('p') ? 'party' : 'daily'
   })
 
-  // 파티를 링크로 받았는지. 받은 쪽에는 "나 넣고 다시 보내기"를 안내한다.
   const [partyFromLink] = useState(() => decodeParty(readParams().get('p') ?? '').length > 0)
 
   // 내 생일은 저장하지만, 링크로 열어본 남의 생일(guest)은 저장하지 않는다.
@@ -38,7 +37,6 @@ export default function App() {
   )
   const [guest, setGuest] = useState<Birth | null>(() => decodeBirth(readParams().get('b') ?? ''))
 
-  // 파티는 링크로 받은 게 있으면 그걸 먼저 보여주고, 없으면 저장해둔 친구 목록을 쓴다.
   const [members, setMembersState] = useState<Member[]>(() => {
     const shared = decodeParty(readParams().get('p') ?? '')
     return shared.length ? shared : decodeParty(localStorage.getItem(PARTY_KEY) ?? '')
@@ -54,7 +52,6 @@ export default function App() {
 
   const { userId, myName: kakaoName, loading: authLoading, signIn, signOut } = useAuth()
 
-  // 기본값은 카카오 닉네임이고, 고치면 이 기기에 남는다.
   // ponytail: 이름은 이 기기까지만 따라간다. 폰↔PC까지 맞추려면 profiles에 컬럼 하나 더.
   const [nameOverride, setNameOverride] = useState(() => localStorage.getItem(NAME_KEY) ?? '')
   const myName = nameOverride.trim() || kakaoName

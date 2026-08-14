@@ -42,7 +42,6 @@ export default function Daily({ birth }: { birth: Birth }) {
         </p>
       </Panel>
 
-      {/* 결과보다 근거가 본체다. what은 크게, why는 바로 아래 한 줄로 붙인다. */}
       <Panel delay={80} className="divide-y divide-ink/[0.06]">
         {(
           [

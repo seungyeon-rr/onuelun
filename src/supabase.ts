@@ -35,7 +35,6 @@ export type PartyMemberRow = {
   created_at: string
 }
 
-/** 사용자에게 보여줄 한국어 메시지. 원문은 콘솔로만 흘린다. */
 export function toKoreanError(e: unknown, fallback: string) {
   console.error(e)
   const msg = e instanceof Error ? e.message : String(e)

@@ -21,9 +21,6 @@ const pad = (n: number) => String(n).padStart(2, '0')
 const fmtBirth = (b: Birth) =>
   `${b.y}.${pad(b.m)}.${pad(b.d)}` + (b.h === HOUR_UNKNOWN ? ' · 시 모름' : ` · ${pad(b.h)}시`)
 
-// ─────────────────────────────────────────────────────────────
-// 공용 조각
-// ─────────────────────────────────────────────────────────────
 
 type Read = { name: string; saju: ReturnType<typeof calcSaju> }
 
@@ -285,7 +282,6 @@ function Notice({ children }: { children: React.ReactNode }) {
   )
 }
 
-/** 나까지 2명이면 바로 결과. 혼자면 한 명만 더 부르면 된다고 알려준다. */
 function Compat({ members }: { members: Member[] }) {
   if (members.length >= 2) return <Balance members={members} />
   return (
@@ -302,9 +298,6 @@ const partyLabel = (p: PartyRow) => {
   return `${d.getMonth() + 1}월 ${d.getDate()}일 모임`
 }
 
-// ─────────────────────────────────────────────────────────────
-// 서버 모임 (실시간)
-// ─────────────────────────────────────────────────────────────
 
 function Room({
   partyId,
@@ -403,9 +396,6 @@ function Room({
   )
 }
 
-// ─────────────────────────────────────────────────────────────
-// 내 모임 목록
-// ─────────────────────────────────────────────────────────────
 
 function MyParties({
   userId,
@@ -426,7 +416,6 @@ function MyParties({
     <div className="flex flex-col gap-2.5">
       <Panel>
         <Label>내 이름</Label>
-        {/* 카카오 닉네임을 기본으로 깔고, 마음에 안 들면 바로 고친다. */}
         <input
           value={myName}
           onChange={(e) => setMyName(e.target.value)}
@@ -501,9 +490,7 @@ function MyParties({
   )
 }
 
-// ─────────────────────────────────────────────────────────────
 // 로컬 모임 — 예전 ?p= 링크, 그리고 서버 키가 없을 때
-// ─────────────────────────────────────────────────────────────
 
 function LocalParty({
   members,
@@ -566,7 +553,6 @@ function LocalParty({
   )
 }
 
-// ─────────────────────────────────────────────────────────────
 
 export default function Party({
   members,

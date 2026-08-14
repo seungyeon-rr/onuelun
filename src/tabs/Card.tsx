@@ -5,7 +5,6 @@ import {
 import { AXES, GAN_META, ELEMENT_META } from '../data'
 import { Panel, Label, ShareButton, Cat } from '../ui'
 
-/** 유형 이름은 "경금(庚)" 꼴로 부른다. MBTI 네 글자 자리에 이게 들어간다. */
 const ganName = (g: Gan) => `${GAN_KO[g]}${ELEMENT_KO[elementOfGan(g)]}(${g})`
 
 export default function Card({ birth }: { birth: Birth }) {
@@ -46,7 +45,6 @@ export default function Card({ birth }: { birth: Birth }) {
         </p>
       </Panel>
 
-      {/* 캐릭터 이름만 던지고 끝내면 절반이다. 강점·약점·다루는 법까지 풀어준다. */}
       <Panel delay={60}>
         <Label>이런 사람입니다</Label>
         <dl className="flex flex-col gap-3.5">

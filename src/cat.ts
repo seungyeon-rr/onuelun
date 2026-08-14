@@ -9,7 +9,6 @@ export const MASCOT_COLOR = '#A6A19B'
  * o=외곽 c=몸털 d=무늬 k=검정얼룩 w=흰털 p=귀·볼분홍 n=코 y=눈 h=하이라이트
  */
 export const SPRITES = {
-  /** 심볼 전용 · 우리 고양이 얼굴 (몸통 없음) */
   face: [
     '..........................',
     '..........................',
@@ -33,7 +32,6 @@ export const SPRITES = {
     '..........................',
     '..........................',
   ],
-  /** 앉기 · 치즈 */
   sit: [
     '....oo..........oo........',
     '....oco........oco........',
@@ -57,7 +55,6 @@ export const SPRITES = {
     '.....occwwwowwwcocccco....',
     '.....ooooooooooooooooo....',
   ],
-  /** 서기 · 고등어 */
   stand: [
     '....oo..........oo........',
     '....oco........oco........',
@@ -81,7 +78,6 @@ export const SPRITES = {
     '.....owwwo...owwwocccco...',
     '.....ooooo...oooooooooo...',
   ],
-  /** 식빵 굽기 · 삼색이 */
   loaf: [
     '......oo..........oo......',
     '......odo........oko......',
@@ -105,7 +101,6 @@ export const SPRITES = {
     '......occcwwwowwwcco......',
     '......oooooooooooooo......',
   ],
-  /** 복슬복슬 앉기 */
   fluff: [
     '.....oo..........oo.......',
     '.....oco........oco.......',
@@ -129,7 +124,6 @@ export const SPRITES = {
     '....occcwwwowwwcccoccccco.',
     '....ooooooooooooooooooooo.',
   ],
-  /** 눕기 */
   lie: [
     '..........................',
     '..........................',
@@ -168,13 +162,11 @@ export const COATS: Record<Element, Coat> = {
 
 export const MASCOT: Coat = { pose: 'face', c: MASCOT_COLOR, d: '#8A857E', y: '#9A8F2E' }
 
-/** 고양이가 달라져도 안 변하는 색. */
 export const PIXEL: Record<string, string> = {
   o: '#3E362F', w: '#FDFBF9', p: '#E8B4AE', e: '#3E362F',
   h: '#FFFFFF', n: '#E8918C',
 }
 
-/** 오행 표식. 모양은 다 같은 십자, 색만 다르다. */
 export const MARK = ['.g.', 'ggg', '.g.']
 
 export const MARK_COLOR: Record<Element, string> = {

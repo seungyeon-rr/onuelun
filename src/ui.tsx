@@ -17,7 +17,6 @@ function Px({ rows, at = [0, 0], color }: { rows: string[]; at?: [number, number
   )
 }
 
-/** el을 주면 그 오행 고양이, 안 주면 우리집 고양이(앱 심볼). */
 export function Cat({
   el,
   size = 96,
@@ -46,7 +45,6 @@ export function Cat({
   )
 }
 
-/** 일간 한자를 담는 도트 타일. */
 export function Seal({ char, className = '' }: { char: string; className?: string }) {
   return (
     <span
@@ -136,7 +134,6 @@ export function BirthField({
   )
 }
 
-/** 링크 복사 버튼. Web Share가 있으면 공유 시트를 띄운다. */
 export function ShareButton({
   url,
   text,
@@ -158,7 +155,7 @@ export function ShareButton({
             alert('링크를 복사했어요. 단톡방에 붙여넣으세요.')
           }
         } catch {
-          // 사용자가 공유 시트를 닫은 경우 — 알릴 것 없음
+          // 사용자가 공유 시트를 닫은 경우 — 알릴 것 없다
         }
       }}
       className="w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"

@@ -10,11 +10,9 @@ function toMember(r: PartyMemberRow): (Member & { rowId: string; addedBy: string
 
 export type PartyMember = NonNullable<ReturnType<typeof toMember>>
 
-// ─────────────────────────────────────────────────────────────
 // 이 기기에서 내가 넣은 참여 기록
 // 링크로 그냥 들어간 사람은 서버에 흔적이 안 남는다. 나중에 로그인할 때
 // 이 기록으로 자기 행을 찾아 이름표를 붙이고, 그 모임이 내 목록에 뜬다.
-// ─────────────────────────────────────────────────────────────
 
 const JOINED_KEY = 'oneulun.joined'
 
@@ -157,7 +155,6 @@ const withCount = (rows: unknown[], mine: boolean): MyParty[] =>
     mine,
   }))
 
-/** 내가 만든 모임 + 내가 들어간 모임. */
 export function useMyParties(userId: string | null) {
   const [parties, setParties] = useState<MyParty[]>([])
   const [loading, setLoading] = useState(false)
