@@ -36,7 +36,7 @@ export default function Card({ birth }: { birth: Birth }) {
       <Panel className="text-center">
         <p className="text-[12px] font-semibold text-ink-faint">내 유형</p>
         <p className="mt-2 font-display text-[26px] tracking-tight">
-          {grade} {ganName(saju.dayGan)}
+          <span className="text-[17px] text-ink-faint">{grade}</span> {ganName(saju.dayGan)}
         </p>
         <Cat el={saju.dayElement} size={112} className="animate-float mx-auto mt-2" />
         <h2 className="mt-1 font-display text-[22px] leading-snug text-seal">{me.character}</h2>
