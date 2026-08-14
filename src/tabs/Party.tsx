@@ -63,10 +63,6 @@ function Wuxing({ read }: { read: Read[] }) {
       }
     }),
   )
-  const live = {
-    born: edges.filter((e) => e.on && e.born).length,
-    kill: edges.filter((e) => e.on && !e.born).length,
-  }
 
   const head = (id: string, color: string) => (
     <marker id={id} markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
@@ -124,21 +120,9 @@ function Wuxing({ read }: { read: Read[] }) {
         })}
       </svg>
 
-      <p className="mt-1 text-center text-[13px] leading-relaxed text-ink-soft">
-        <b className="font-display text-ink">서로 챙기는 짝 {live.born}</b>
-        <span className="text-ink-faint"> · </span>
-        <b className="font-display text-seal">서로 긴장하는 짝 {live.kill}</b>
-        <br />
-        <span className="text-ink-faint">
-          화살표는 기운이 가는 방향이에요. 회색은 챙겨주고, 빨강은 긴장을 줍니다.
-        </span>
-        <br />
-        {/* 둘 다 있는 건 대부분이라 굳이 말 안 한다. 한쪽으로 쏠렸을 때만 짚어준다. */}
-        {live.kill === 0
-          ? '긴장하는 짝이 없어요. 만나면 편한데, 서로 밀어붙이진 않는 사이예요.'
-          : live.born === 0
-            ? '긴장하는 짝만 있어요. 만나면 정신은 바짝 드는데 오래 있으면 지칩니다.'
-            : null}
+      {/* 세는 단위(선이냐 사람이냐)를 설명할 자리가 없다. 그림 읽는 법만 남긴다. */}
+      <p className="mt-1 text-center text-[13px] leading-relaxed text-ink-faint">
+        화살표는 기운이 가는 방향이에요. 회색은 챙겨주고, 빨강은 긴장을 줍니다.
       </p>
     </div>
   )
