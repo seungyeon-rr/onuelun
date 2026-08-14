@@ -727,7 +727,7 @@ export default function Party({
             카카오로 시작하기
           </button>
         </Panel>
-        <Notice>생일도 같이 저장돼서 폰이랑 PC가 자동으로 맞춰져요.</Notice>
+        <Notice>생일도 같이 기억해둬요. 폰에서 넣고 PC에서 열어도 그대로예요.</Notice>
       </div>
     )
 

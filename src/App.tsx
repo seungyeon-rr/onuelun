@@ -120,7 +120,7 @@ export default function App() {
             <Cat size={108} className="animate-float mx-auto" />
             <h2 className="mt-3 font-display text-[19px]">생일만 알려주면 돼요!</h2>
             <p className="mb-5 mt-2 text-[14px] leading-relaxed text-ink-soft">
-              이 기기에만 저장돼요. 서버로 아무것도 안 보내요.
+              가입도 로그인도 없어요. 생일은 이 기기에 저장돼요.
             </p>
             <div className="text-left">
               <BirthField value={draft ?? birth} onChange={setDraft} autoFocus />
