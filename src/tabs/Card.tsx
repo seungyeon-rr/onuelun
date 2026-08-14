@@ -58,6 +58,18 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
 
   return (
     <div className="flex flex-col gap-2.5">
+      {/*
+        시주가 없으면 여덟 글자 중 여섯 글자로 낸 결과다. 오행 분포뿐 아니라 유형까지 흔들려서
+        카드 맨 위에 한 번 밝힌다. 오늘 운세는 일간만 쓰니 여기에만 붙인다.
+      */}
+      {!saju.hasTime && (
+        <p className="border-[3px] border-ink bg-hanji-deep px-3.5 py-2.5 text-[13px] leading-relaxed">
+          태어난 시간을 안 넣어서 <b className="font-display">여덟 글자 중 여섯 글자</b>로 낸
+          결과예요. 유형(신강/신약)·능력치·MBTI·오행이 다 달라질 수 있어요. 시간을 알면 위 '생일
+          변경'에서 넣어보세요.
+        </p>
+      )}
+
       <Panel className="text-center">
         <p className="text-[12px] font-semibold text-ink-faint">
           내 유형 · {rarityLine} · 20종 중 {rank}번째로 드묾
@@ -223,11 +235,6 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
             </li>
           ))}
         </ul>
-        {!saju.hasTime && (
-          <p className="mt-3 text-[12px] leading-relaxed text-ink-faint">
-            태어난 시간을 모르면 합계가 8이 아니라 6이에요. 알고 있으면 더 정확해져요!
-          </p>
-        )}
       </Panel>
 
       <div className="flex flex-col gap-2.5">
