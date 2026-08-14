@@ -34,17 +34,25 @@
    ```
    `<프로젝트ID>`는 1-4에서 복사한 Project URL에 들어 있다
 5. **제품 설정 → 카카오 로그인 → 보안** → `Client Secret` 생성하고 **활성화 상태 ON**, 코드 복사
-6. **제품 설정 → 카카오 로그인 → 동의항목** → `닉네임`만 필수로 체크
-   - 이메일은 검수가 필요해서 안 받는다. Supabase 쪽에서 이메일 없는 계정을 허용하도록 아래 3번에서 켠다
-7. **앱 설정 → 플랫폼 → Web** 에 사이트 도메인 등록 (로컬 테스트용으로 `http://localhost:5173` 도 같이)
+6. **앱 설정 → 비즈니스 → 개인 개발자 비즈 앱 전환** (개인으로 등록)
+   - 본인인증과 약관 동의만 하면 되고 사업자등록번호나 데브톡 심사는 필요 없다
+   - 이걸 해야 아래 이메일 동의항목이 열린다
+7. **제품 설정 → 카카오 로그인 → 동의항목** → 아래 셋을 모두 설정한다
+   - `닉네임` 필수 동의
+   - `프로필 사진` 이용 중 동의
+   - `카카오계정(이메일)` 선택 동의
+   - **셋 다 켜야 한다.** Supabase는 카카오에 `account_email profile_image profile_nickname`을
+     항상 요청하고, 앱 코드의 `scopes` 옵션으로 뺄 수 없다(덧붙이기만 된다).
+     하나라도 설정 안 돼 있으면 로그인 화면에서 `KOE205`로 막힌다
+8. **앱 설정 → 플랫폼 → Web** 에 사이트 도메인 등록 (배포 주소, 로컬 테스트용으로 `http://localhost:5173` 도 같이)
 
 **Supabase 대시보드**
 
-8. **Authentication → Sign In / Providers → Kakao** 활성화
+9. **Authentication → Sign In / Providers → Kakao** 활성화
    - `REST API Key` ← 2-2에서 복사한 REST API 키
    - `Client Secret Code` ← 2-5에서 복사한 코드
-   - **Allow users without an email** 켜기 (6번에서 이메일 동의를 안 받았으므로 필수)
-9. **Authentication → URL Configuration**
+   - **Allow users without an email** 켜기 (7번에서 이메일을 선택 동의로 뒀으므로, 동의 안 한 사용자도 가입돼야 한다)
+10. **Authentication → URL Configuration**
    - `Site URL` ← 배포 주소 (로컬만 테스트할 거면 `http://localhost:5173`)
    - `Redirect URLs` 에 배포 주소와 `http://localhost:5173` 둘 다 추가
 

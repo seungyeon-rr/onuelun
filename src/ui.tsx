@@ -1,48 +1,7 @@
 import type { ReactNode } from 'react'
 import { HOUR_UNKNOWN, type Birth, type Element } from './saju'
-import { ELEMENT_META } from './data'
+import { COATS, MASCOT, PIXEL, SPRITES, TOPPER } from './cat'
 
-/** 회갈색 램킨. 이 앱의 심볼이자 기본 모습이다. */
-export const MASCOT_COLOR = '#A2948B'
-
-/**
- * 23x18 도트 스프라이트. c만 오행 색으로 갈아끼우고 나머지는 고정이다.
- * o=외곽 c=몸털 w=흰털 p=귀분홍 e=눈 y=홍채 h=하이라이트 n=코
- */
-const SPRITE = [
-  '...o....o..............',
-  '..oco..oco.............',
-  '..ocpoopcoo............',
-  '.occccccccco.......oo..',
-  '.occccccccco......occo.',
-  '.occccccccco......occo.',
-  '.owwwheccccoooooo.occo.',
-  '.owwweyccccccccccoocco.',
-  'onwwwwcccccccccccoocco.',
-  '.owwwwwccccccccccoocco.',
-  '.owwwwwwwccccccccoocco.',
-  '.owwwwwwwwwccccccoocco.',
-  '.owwwwwwwwwwwwccccccco.',
-  '.owwwwwwwwwwwwwwwccoo..',
-  '.owwwwwwwwwwwwwwwwwo...',
-  '.owwwowwwooowwwowwwo...',
-  '.owwwowwwo.owwwowwwo...',
-  '..ooo.ooo...ooo.ooo....',
-]
-
-const PIXEL: Record<string, string> = {
-  o: '#3E362F', w: '#FDFBF9', p: '#E8B4AE', e: '#3E362F',
-  y: '#C5BE55', h: '#FFFFFF', n: '#E8918C',
-}
-
-/** 오행 표식 3x3. 등 위에 떠 있다. */
-const TOPPER: Record<Element, { rows: string[]; color: string; alt?: string }> = {
-  木: { rows: ['.gg', 'gga', '.a.'], color: '#4FB58B', alt: '#2E8563' },
-  火: { rows: ['.g.', 'ggg', '.g.'], color: '#D4483A' },
-  土: { rows: ['...', '.gg', 'gggg'], color: '#C98A1E' },
-  金: { rows: ['.g.', 'ggg', '.g.'], color: '#8A8377' },
-  水: { rows: ['.g.', 'ggg', 'gg.'], color: '#3F66AC' },
-}
 
 function Px({ rows, at, color }: { rows: string[]; at: [number, number]; color: (ch: string) => string }) {
   return (
@@ -68,23 +27,24 @@ export function Cat({
   size?: number
   className?: string
 }) {
-  const body = el ? ELEMENT_META[el].color : MASCOT_COLOR
+  const cat = el ? COATS[el] : MASCOT
+  const palette: Record<string, string> = { ...PIXEL, c: cat.c, d: cat.d, y: cat.y }
   const top = el ? TOPPER[el] : null
 
   return (
     <svg
-      viewBox="0 0 23 18"
+      viewBox="0 0 26 21"
       width={size}
-      height={(size * 18) / 23}
+      height={(size * 21) / 26}
       shapeRendering="crispEdges"
       aria-hidden
       className={className}
     >
-      <Px rows={SPRITE} at={[0, 0]} color={(ch) => (ch === 'c' ? body : PIXEL[ch])} />
+      <Px rows={SPRITES[cat.pose]} at={[0, 0]} color={(ch) => palette[ch]} />
       {top && (
         <Px
           rows={top.rows}
-          at={[12, 0]}
+          at={[22, 0]}
           color={(ch) => (ch === 'a' ? (top.alt ?? top.color) : top.color)}
         />
       )}

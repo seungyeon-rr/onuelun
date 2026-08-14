@@ -25,11 +25,12 @@ export function useAuth() {
       if (!supabase) return
       try {
         // 로그인 후 보던 화면(모임 링크)으로 그대로 돌아와야 한다.
-        // 스코프는 카카오 동의항목에 실제로 켜둔 것만 요청한다. Supabase 기본값은
-        // account_email까지 요청하는데, 이메일은 비즈앱 검수가 필요해 안 받았다. 그대로 두면 KOE205로 튕긴다.
+        // scopes 옵션은 일부러 안 쓴다. Supabase는 제거가 아니라 기본 스코프에 덧붙이기만 해서
+        // account_email+profile_image+profile_nickname 셋이 항상 나간다. 셋 다 카카오 동의항목에
+        // 설정돼 있어야 하고, 아니면 KOE205로 막힌다. SETUP.md 2번 참고.
         const { error } = await supabase.auth.signInWithOAuth({
           provider: 'kakao',
-          options: { redirectTo: location.href, scopes: 'profile_nickname' },
+          options: { redirectTo: location.href },
         })
         if (error) throw error
       } catch (e) {
