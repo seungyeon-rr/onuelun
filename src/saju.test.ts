@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { Solar } from 'lunar-javascript'
 import {
-  calcSaju, shishenOf, decodeBirth, encodeBirth, seededPick,
-  HOUR_UNKNOWN, SHISHEN_KO,
+  calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, seededPick,
+  GANS, SHISHEN, HOUR_UNKNOWN, SHISHEN_KO,
 } from './saju'
+import { GAN_META } from './data'
 
 describe('팔자 계산', () => {
   it('알려진 생년월일시의 사주가 일치한다', () => {
@@ -29,6 +30,36 @@ describe('팔자 계산', () => {
   it('오행 개수 합이 팔자 글자 수와 같다', () => {
     const s = calcSaju({ y: 1993, m: 5, d: 12, h: 14 })
     expect(Object.values(s.elements).reduce((a, b) => a + b, 0)).toBe(8)
+  })
+})
+
+describe('일간 유형', () => {
+  // 카드의 찰떡/상극이 여기서 나온다. 하나라도 못 찾으면 화면이 깨진다.
+  it('모든 일간에서 십신 10개가 천간 하나씩과 1:1로 맞는다', () => {
+    for (const me of GANS) {
+      const found = SHISHEN.map((s) => ganOfShiShen(me, s))
+      expect(new Set(found).size).toBe(10)
+      expect(GAN_META[me]).toBeDefined()
+    }
+  })
+
+  // 월지가 비겁/인성이면(득령) 그 자체로 신강이다. 나머지 자리는 볼 것도 없다.
+  it('득령하면 신강이다', () => {
+    // 癸일간 + 월지 亥(비겁). 나머지는 재관으로 채워도 신강이어야 한다.
+    expect(calcSaju({ y: 1983, m: 11, d: 20, h: 10 }).pillars[1]).toBe('癸亥')
+    expect(calcSaju({ y: 1983, m: 11, d: 20, h: 10 }).strong).toBe(true)
+  })
+
+  // 한쪽으로 쏠리면 유형 절반이 죽는다. 실측 47.6%라 40~60% 안에 있어야 한다.
+  it('신강/신약이 한쪽으로 쏠리지 않는다', () => {
+    let strong = 0
+    const dates = []
+    for (let y = 1970; y < 2010; y++)
+      for (let m = 1; m <= 12; m++) dates.push({ y, m, d: 15, h: 9 })
+    for (const b of dates) if (calcSaju(b).strong) strong++
+    const rate = strong / dates.length
+    expect(rate).toBeGreaterThan(0.4)
+    expect(rate).toBeLessThan(0.6)
   })
 })
 

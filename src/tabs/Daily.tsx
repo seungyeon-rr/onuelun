@@ -1,4 +1,4 @@
-import { calcSaju, dateKey, ganOfDay, seededPick, todayShiShen, GAN_KO, SHISHEN_KO, type Birth } from '../saju'
+import { calcSaju, dateKey, ganOfDay, seededPick, todayShiShen, SHISHEN_KO, type Birth } from '../saju'
 import { DAILY, type Tip } from '../data'
 import { Panel, Seal, Cat } from '../ui'
 
@@ -26,9 +26,7 @@ export default function Daily({ birth }: { birth: Birth }) {
         <p className="text-[12px] font-semibold text-ink-faint">
           {today.getMonth() + 1}월 {today.getDate()}일 {WEEKDAY[today.getDay()]}요일
         </p>
-        <p className="mt-5 text-[14px] text-ink-soft">
-          {GAN_KO[saju.dayGan]}({saju.dayGan})의 나에게 오늘 들어온 기운
-        </p>
+        <p className="mt-5 text-[14px] text-ink-soft">오늘 나에게 들어온 기운</p>
         <h2 className="mt-2 font-display text-[32px] leading-none tracking-tight">
           {SHISHEN_KO[shishen]}
           <span className="ml-2 text-[15px] text-ink-faint">
