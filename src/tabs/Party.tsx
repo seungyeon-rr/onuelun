@@ -133,11 +133,12 @@ function Wuxing({ read }: { read: Read[] }) {
           화살표는 기운이 가는 방향이에요. 회색은 챙겨주고, 빨강은 긴장을 줍니다.
         </span>
         <br />
+        {/* 둘 다 있는 건 대부분이라 굳이 말 안 한다. 한쪽으로 쏠렸을 때만 짚어준다. */}
         {live.kill === 0
           ? '긴장하는 짝이 없어요. 만나면 편한데, 서로 밀어붙이진 않는 사이예요.'
           : live.born === 0
             ? '긴장하는 짝만 있어요. 만나면 정신은 바짝 드는데 오래 있으면 지칩니다.'
-            : '챙기는 짝과 긴장하는 짝이 둘 다 있어요. 편할 땐 편하고, 필요할 땐 서로를 움직입니다.'}
+            : null}
       </p>
     </div>
   )
@@ -383,7 +384,7 @@ function Notice({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * 2명이 모이면 결과부터 보여주고, 파티원 넣고 빼는 칸은 접는다.
+ * 2명이 모이면 결과부터 보여주고, 사람 넣는 칸은 결과 밑으로 접는다.
  * 궁합 보러 들어왔는데 입력 폼을 지나쳐 스크롤해야 하는 게 이 화면의 제일 큰 불편이었다.
  * ponytail: <details>라 열림 상태를 따로 안 들고 있는다.
  */
@@ -407,7 +408,7 @@ function Compat({ members, children }: { members: Member[]; children: React.Reac
         <summary
           className={`flex cursor-pointer list-none items-center justify-center gap-1 border-[3px] border-ink bg-card py-3 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] [&::-webkit-details-marker]:hidden ${PRESS}`}
         >
-          파티원 {members.length}명 <span className="text-ink-faint">· 넣고 빼기</span>
+          파티원 추가하기
           <span className="inline-block text-ink-faint transition-transform group-open:rotate-180">▾</span>
         </summary>
         <div className="mt-2.5 flex flex-col gap-2.5">{children}</div>
@@ -484,6 +485,18 @@ function Room({
         )}
       </Panel>
 
+      {members.length > 0 && (
+        <MemberList
+          members={members}
+          // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
+          onRemove={(i) => {
+            const m = members[i]
+            if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
+            else alert('파티를 만든 사람만 뺄 수 있어요.')
+          }}
+        />
+      )}
+
       <Compat members={members}>
         <AddMember
           onAdd={add}
@@ -493,17 +506,6 @@ function Room({
           title={isOwner ? '파티원 추가' : '나도 넣기'}
           namePlaceholder={isOwner ? '이름이나 별명' : '내 이름이나 별명'}
         />
-        {members.length > 0 && (
-          <MemberList
-            members={members}
-            // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
-            onRemove={(i) => {
-              const m = members[i]
-              if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
-              else alert('파티를 만든 사람만 뺄 수 있어요.')
-            }}
-          />
-        )}
       </Compat>
 
       <ShareButton url={roomUrl(partyId)} label="링크 복사하기" />
@@ -640,7 +642,7 @@ function LocalParty({
           <h2 className="mt-2 font-display text-[14px] text-seal">친구가 보낸 파티예요</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
             {members.length >= 2 ? (
-              "'파티원 넣고 빼기'를 열어 내 생일을 넣으면 나까지 포함한 궁합이 나와요."
+              "아래 '파티원 추가하기'를 열어 내 생일을 넣으면 나까지 포함한 궁합이 나와요."
             ) : (
               <>
                 아래에 내 생일을 넣으면 나까지 포함한 궁합이 나와요.
@@ -652,6 +654,10 @@ function LocalParty({
         </Panel>
       )}
 
+      {members.length > 0 && (
+        <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
+      )}
+
       <Compat members={members}>
         <AddMember
           onAdd={(m) => setMembers([...members, m])}
@@ -661,9 +667,6 @@ function LocalParty({
           title={fromLink ? '나도 넣기' : '파티원 추가'}
           namePlaceholder={fromLink ? '내 이름이나 별명' : '이름이나 별명'}
         />
-        {members.length > 0 && (
-          <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
-        )}
       </Compat>
 
       {members.length > 0 && (
