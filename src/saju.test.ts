@@ -3,6 +3,7 @@ import { Solar } from 'lunar-javascript'
 import {
   calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
   GANS, SHISHEN, ELEMENTS, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen, elementOfGan,
+  zhiIndexOf, hourOfZhi, zhiRange,
 } from './saju'
 import { GAN_META, PAIR_CHEMI } from './data'
 
@@ -110,6 +111,13 @@ describe('생일 인코딩', () => {
     }
   })
 
+  // 예전엔 시각을 그대로 저장했다. 30분 규칙으로 읽으면 13시는 미시가 아니라 오시다.
+  it('예전에 저장된 시각도 지지 기준으로 접어 들인다', () => {
+    expect(decodeBirth('19930512-13')!.h).toBe(12) // 오시(11:30~13:29)
+    expect(decodeBirth('19930512-23')!.h).toBe(22) // 해시(21:30~23:29)
+    expect(decodeBirth('19930512-1')!.h).toBe(0) // 자시(23:30~01:29)
+  })
+
   it('잘못된 값을 거부한다', () => {
     for (const bad of ['', '19930512', '1993-05-12', '19930230-1', '19930512-24', 'abcdefgh-1']) {
       expect(decodeBirth(bad)).toBeNull()
@@ -189,6 +197,32 @@ describe('오행 관계도', () => {
         if (el === born) expect(['食神', '傷官']).toContain(s)
         if (el === killed) expect(['偏財', '正財']).toContain(s)
       }
+    }
+  })
+})
+
+describe('십이지시', () => {
+  // 자시는 23:00이 아니라 23:30에 시작한다. 23시에 태어난 사람은 해시다.
+  it('30분 앞당겨 끊는다', () => {
+    expect(zhiRange(0)).toBe('23:30~01:29')
+    expect(zhiRange(1)).toBe('01:30~03:29')
+    expect(zhiIndexOf(23)).toBe(11) // 해
+    expect(zhiIndexOf(0)).toBe(0) // 자
+    expect(zhiIndexOf(1)).toBe(0) // 자
+    expect(zhiIndexOf(2)).toBe(1) // 축
+    expect(zhiIndexOf(14)).toBe(7) // 미
+  })
+
+  it('고른 지시가 저장했다 읽어도 그대로다', () => {
+    for (let i = 0; i < 12; i++) expect(zhiIndexOf(hourOfZhi(i))).toBe(i)
+  })
+
+  // 저장하는 시각이 지지 한가운데여야 lunar-javascript도 같은 시주를 낸다.
+  it('저장한 시각이 그 지지의 시주로 계산된다', () => {
+    const ZHI_HANJA = '子丑寅卯辰巳午未申酉戌亥'
+    for (let i = 0; i < 12; i++) {
+      const saju = calcSaju({ y: 1993, m: 5, d: 12, h: hourOfZhi(i) })
+      expect(saju.pillars[3][1]).toBe(ZHI_HANJA[i])
     }
   })
 })

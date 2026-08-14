@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { HOUR_UNKNOWN, type Birth, type Element } from './saju'
+import { HOUR_UNKNOWN, ZHI, hourOfZhi, zhiIndexOf, zhiRange, type Birth, type Element } from './saju'
 import { COATS, MARK, MARK_COLOR, MASCOT, PIXEL, SPRITES } from './cat'
 
 
@@ -84,9 +84,6 @@ export function Label({ children }: { children: ReactNode }) {
   )
 }
 
-const ZHI = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해']
-const zhiOf = (h: number) => ZHI[Math.floor(((h + 1) % 24) / 2)]
-
 const pad = (n: number) => String(n).padStart(2, '0')
 
 export function BirthField({
@@ -100,40 +97,56 @@ export function BirthField({
 }) {
   const dateValue = value ? `${value.y}-${pad(value.m)}-${pad(value.d)}` : ''
 
+  const now = new Date()
+  const today = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
+
+  const field =
+    'w-full border-[3px] border-ink bg-hanji px-3 py-3.5 outline-none focus:border-seal'
+
   return (
-    <div className="flex gap-2">
-      <input
-        type="date"
-        autoFocus={autoFocus}
-        value={dateValue}
-        max="2100-12-31"
-        min="1900-01-01"
-        onChange={(e) => {
-          const [y, m, d] = e.target.value.split('-').map(Number)
-          if (!y || !m || !d) return
-          onChange({ y, m, d, h: value?.h ?? HOUR_UNKNOWN })
-        }}
-        className="min-w-0 flex-1 border-[3px] border-ink bg-hanji px-3 py-3 outline-none focus:border-seal"
-      />
-      <select
-        value={value?.h ?? HOUR_UNKNOWN}
-        onChange={(e) =>
-          onChange({
-            y: value?.y ?? 2000,
-            m: value?.m ?? 1,
-            d: value?.d ?? 1,
-            h: Number(e.target.value),
-          })
-        }
-        className="shrink-0 border-[3px] border-ink bg-hanji px-2 py-3 outline-none focus:border-seal"
-      >
-        <option value={HOUR_UNKNOWN}>시 모름</option>
-        {Array.from({ length: 24 }, (_, h) => (
-          <option key={h} value={h}>
-            {pad(h)}시 · {zhiOf(h)}시
-          </option>
-        ))}
-      </select>
+    <div className="flex flex-col gap-2 text-left">
+      <label className="flex flex-col gap-1">
+        <span className="font-display text-[13px] text-ink-faint">생년월일</span>
+        <input
+          type="date"
+          autoFocus={autoFocus}
+          value={dateValue}
+          max={today}
+          min="1900-01-01"
+          onChange={(e) => {
+            const [y, m, d] = e.target.value.split('-').map(Number)
+            if (!y || !m || !d) return
+            // max는 달력만 막는다. 키보드로 직접 친 날짜는 그대로 들어오므로 여기서 한 번 더 본다.
+            if (e.target.value > today) return
+            onChange({ y, m, d, h: value?.h ?? HOUR_UNKNOWN })
+          }}
+          className={field}
+        />
+      </label>
+
+      <label className="flex flex-col gap-1">
+        <span className="font-display text-[13px] text-ink-faint">태어난 시각</span>
+        <select
+          value={value && value.h !== HOUR_UNKNOWN ? zhiIndexOf(value.h) : HOUR_UNKNOWN}
+          onChange={(e) => {
+            const i = Number(e.target.value)
+            onChange({
+              y: value?.y ?? 2000,
+              m: value?.m ?? 1,
+              d: value?.d ?? 1,
+              h: i === HOUR_UNKNOWN ? HOUR_UNKNOWN : hourOfZhi(i),
+            })
+          }}
+          className={field}
+        >
+          <option value={HOUR_UNKNOWN}>시 모름 (몰라도 봐드려요)</option>
+          {ZHI.map((z, i) => (
+            <option key={z} value={i}>
+              {z}시 · {zhiRange(i)}
+            </option>
+          ))}
+        </select>
+      </label>
     </div>
   )
 }

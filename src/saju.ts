@@ -153,6 +153,31 @@ export function todayShiShen(dayGan: string, date: Date): ShiShen {
   return shishenOf(dayGan, ganOfDay(date))
 }
 
+// ---- 십이지시 ----
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+
+export const ZHI = ['자', '축', '인', '묘', '진', '사', '오', '미', '신', '유', '술', '해']
+
+/**
+ * 명리에서 하루는 정시가 아니라 30분 앞당겨 끊는다. 자시는 23:00이 아니라 23:30에 시작한다.
+ * 시계 시각을 그대로 지지에 태우면 경계에 태어난 사람이 통째로 한 칸씩 밀린다.
+ * ponytail: 야자시/조자시(자정 전후로 날짜를 가르는 학파)는 따르지 않는다. 하루는 한 번만 바뀐다.
+ */
+const ZHI_START = 23 * 60 + 30
+
+export const zhiIndexOf = (h: number) => Math.floor((((h * 60 - ZHI_START) % 1440) + 1440) % 1440 / 120)
+
+/** 저장은 계속 0~23시로 한다(이미 나간 링크와 호환). 지지 한가운데 시각이라 어디서 계산해도 같은 지지가 나온다. */
+export const hourOfZhi = (i: number) => i * 2
+
+export const zhiRange = (i: number) => {
+  const start = (ZHI_START + i * 120) % 1440
+  const end = (start + 119) % 1440
+  const clock = (m: number) => `${pad2(Math.floor(m / 60))}:${pad2(m % 60)}`
+  return `${clock(start)}~${clock(end)}`
+}
+
 // ---- 생일 <-> URL/저장 문자열 (예: "19930512-14", 시 모름은 "19930512-x") ----
 
 export function encodeBirth(b: Birth): string {
@@ -164,16 +189,21 @@ export function decodeBirth(s: string): Birth | null {
   const m = /^(\d{4})(\d{2})(\d{2})-(x|\d{1,2})$/.exec(s.trim())
   if (!m) return null
   const [, y, mo, d, h] = m
+  const rawHour = h === 'x' ? HOUR_UNKNOWN : +h
+  // 범위 검사는 들어온 값 그대로 해야 한다. 아래에서 지지로 접고 나면 24시도 0시로 보여 통과해버린다.
+  if (rawHour !== HOUR_UNKNOWN && (rawHour < 0 || rawHour > 23)) return null
+
   const birth: Birth = {
     y: +y,
     m: +mo,
     d: +d,
-    h: h === 'x' ? HOUR_UNKNOWN : +h,
+    // 시각은 지지 한가운데로 맞춰 들인다. 30분 규칙을 이 한 곳에서만 적용하면
+    // 예전에 시각 그대로 저장된 값도, 이미 나가 있는 링크도 같은 기준으로 읽힌다.
+    h: rawHour === HOUR_UNKNOWN ? HOUR_UNKNOWN : hourOfZhi(zhiIndexOf(rawHour)),
   }
   // 존재하지 않는 날짜(2월 30일 등)를 걸러낸다.
   const probe = new Date(birth.y, birth.m - 1, birth.d)
   if (probe.getMonth() !== birth.m - 1 || probe.getDate() !== birth.d) return null
-  if (birth.h !== HOUR_UNKNOWN && (birth.h < 0 || birth.h > 23)) return null
   return birth
 }
 
