@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react'
 import {
-  calcSaju, encodeBirth, encodeParty, ELEMENTS, ELEMENT_KO,
+  calcSaju, encodeBirth, encodeParty, ELEMENTS, ELEMENT_KO, shishenOf,
   HOUR_UNKNOWN, type Birth, type Element, type Member,
 } from '../saju'
-import { ELEMENT_META } from '../data'
+import { BALANCED_TYPE, ELEMENT_META, PAIR_CHEMI, PARTY_ROLE, PARTY_TYPE } from '../data'
 import { Panel, Label, BirthField, ShareButton, Cat } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
@@ -26,19 +26,36 @@ const fmtBirth = (b: Birth) =>
 // ─────────────────────────────────────────────────────────────
 
 function Balance({ members }: { members: Member[] }) {
+  const read = members.map((m) => ({ name: m.name, saju: calcSaju(m.birth) }))
+
   const totals = Object.fromEntries(ELEMENTS.map((e) => [e, 0])) as Record<Element, number>
-  for (const m of members) {
-    const s = calcSaju(m.birth)
-    for (const e of ELEMENTS) totals[e] += s.elements[e]
+  for (const { saju } of read) {
+    for (const e of ELEMENTS) totals[e] += saju.elements[e]
   }
   const sum = Object.values(totals).reduce((a, b) => a + b, 0)
   const missing = ELEMENTS.filter((e) => totals[e] === 0)
   const dominant = ELEMENTS.filter((e) => sum > 0 && totals[e] / sum >= DOMINANT)
+  const partyType = dominant[0] ? PARTY_TYPE[dominant[0]] : BALANCED_TYPE
+
+  // A가 B를 보는 십신과 B가 A를 보는 십신은 다르다. 방향까지 다 훑고 양 끝만 뽑는다.
+  // ponytail: 30명이어도 870쌍이라 전수로 돈다. 더 커지면 그때 자르면 된다.
+  const pairs = read.flatMap((a, i) =>
+    read
+      .filter((_, j) => j !== i)
+      .map((b) => ({
+        a: a.name,
+        b: b.name,
+        ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)],
+      })),
+  )
+  const best = pairs.reduce((x, y) => (y.score > x.score ? y : x))
+  const spark = pairs.reduce((x, y) => (y.score < x.score ? y : x))
 
   return (
     <>
       <Panel delay={120}>
-        <Label>우리 파티 스탯</Label>
+        <Label>우리 모임 유형</Label>
+        <p className="mb-4 font-display text-[17px] leading-snug text-seal">{partyType}</p>
         <div className="mt-3 flex h-5 overflow-hidden border-[3px] border-ink">
           {ELEMENTS.map((e) =>
             totals[e] === 0 ? null : (
@@ -60,7 +77,46 @@ function Balance({ members }: { members: Member[] }) {
         </div>
       </Panel>
 
-      <Panel delay={180} className="bg-seal/[0.07]">
+      <Panel delay={150}>
+        <Label>케미 리포트</Label>
+        <ul className="flex flex-col gap-3">
+          <li className="text-[14px] leading-relaxed">
+            <b className="font-display text-seal">찰떡 · {best.tag}</b>
+            <br />
+            {best.line(best.a, best.b)}
+          </li>
+          {/* 2명이면 방향만 다른 같은 쌍이라 한 줄로 끝난다. */}
+          {spark !== best && (
+            <li className="text-[14px] leading-relaxed">
+              <b className="font-display" style={{ color: ELEMENT_META['火'].color }}>
+                불꽃 · {spark.tag}
+              </b>
+              <br />
+              {spark.line(spark.a, spark.b)}
+            </li>
+          )}
+        </ul>
+      </Panel>
+
+      <Panel delay={180}>
+        <Label>역할 배정</Label>
+        <ul className="flex flex-col gap-2.5">
+          {read.map(({ name, saju }, i) => {
+            const { role, line } = PARTY_ROLE[saju.dayGan]
+            return (
+              <li key={i} className="text-[14px] leading-relaxed">
+                <b className="font-display">
+                  {name} — {role}
+                </b>
+                <br />
+                <span className="text-ink-soft">{line}</span>
+              </li>
+            )
+          })}
+        </ul>
+      </Panel>
+
+      <Panel delay={210} className="bg-seal/[0.07]">
         <Label>우리 모임은요</Label>
         <ul className="flex flex-col gap-2.5">
           {missing.map((e) => (
