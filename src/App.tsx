@@ -97,7 +97,7 @@ export default function App() {
         <Cat size={52} className="animate-float shrink-0" />
         <div className="flex-1">
           <h1 className="font-display text-[20px] leading-none">오늘운</h1>
-          <p className="mt-2 text-[13px] text-ink-faint">사주로 보는 오늘의 나</p>
+          <p className="mt-2 text-[13px] text-ink-faint">생일로 보는 우리 파티 궁합</p>
         </div>
         {birth && !editing && tab !== 'party' && (
           <button

@@ -128,7 +128,7 @@ export function drawCard(ctx: CanvasRenderingContext2D, art: CardArt, host: stri
   ctx.textAlign = 'center'
   ctx.font = body(26)
   ctx.fillStyle = INK_FAINT
-  ctx.fillText('오늘운 · 사주로 보는 오늘의 나', W / 2, 110)
+  ctx.fillText('오늘운 · 생일로 보는 우리 파티 궁합', W / 2, 110)
 
   // 한 줄에 다 넣으면 접혀서 '유형'만 다음 줄에 남는다. 크기를 갈라 두 줄로 박는다.
   centered(ctx, art.rarity, 175, display(42), INK)
