@@ -224,12 +224,14 @@ function MemberList({
 function AddMember({
   onAdd,
   myBirth,
+  myName,
   canAddMe,
   title,
   namePlaceholder,
 }: {
   onAdd: (m: Member) => void
   myBirth: Birth | null
+  myName: string
   canAddMe: boolean
   title: string
   namePlaceholder: string
@@ -253,7 +255,7 @@ function AddMember({
         <div className="flex gap-2">
           {canAddMe && myBirth && (
             <button
-              onClick={() => onAdd({ name: '나', birth: myBirth })}
+              onClick={() => onAdd({ name: myName, birth: myBirth })}
               className="shrink-0 border-[3px] border-ink bg-card px-4 py-3 font-display text-ink shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
             >
               + 나
@@ -307,11 +309,13 @@ const partyLabel = (p: PartyRow) => {
 function Room({
   partyId,
   myBirth,
+  myName,
   userId,
   onLeave,
 }: {
   partyId: string
   myBirth: Birth | null
+  myName: string
   userId: string | null
   onLeave: () => void
 }) {
@@ -362,6 +366,7 @@ function Room({
       <AddMember
         onAdd={add}
         myBirth={myBirth}
+        myName={myName}
         canAddMe={!alreadyIn}
         title={isOwner ? '멤버 추가' : '나도 넣기'}
         namePlaceholder={isOwner ? '이름이나 별명' : '내 이름이나 별명'}
@@ -405,10 +410,14 @@ function Room({
 function MyParties({
   userId,
   myBirth,
+  myName,
+  setMyName,
   onOpen,
 }: {
   userId: string
   myBirth: Birth | null
+  myName: string
+  setMyName: (n: string) => void
   onOpen: (id: string) => void
 }) {
   const { parties, loading, error, create, remove } = useMyParties(userId)
@@ -416,10 +425,24 @@ function MyParties({
   return (
     <div className="flex flex-col gap-2.5">
       <Panel>
-        {/* 이름은 안 묻는다. 만들고 나서 붙이고 싶으면 방 안에서 붙인다. */}
+        <Label>내 이름</Label>
+        {/* 카카오 닉네임을 기본으로 깔고, 마음에 안 들면 바로 고친다. */}
+        <input
+          value={myName}
+          onChange={(e) => setMyName(e.target.value)}
+          placeholder="카카오 닉네임"
+          maxLength={12}
+          aria-label="내 이름"
+          className="w-full border-[3px] border-ink bg-hanji px-4 py-3 outline-none placeholder:text-ink-faint focus:border-seal"
+        />
+        <p className="mb-4 mt-2 text-[13px] text-ink-faint">
+          모임에 나를 넣을 때 이 이름으로 들어가요. 친구들 화면에도 이렇게 보입니다.
+        </p>
+
+        {/* 모임 이름은 안 묻는다. 만들고 나서 붙이고 싶으면 방 안에서 붙인다. */}
         <button
           onClick={async () => {
-            const id = await create(newPartyId(), myBirth ? { name: '나', birth: myBirth } : null)
+            const id = await create(newPartyId(), myBirth ? { name: myName, birth: myBirth } : null)
             if (id) onOpen(id)
           }}
           className="w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
@@ -479,11 +502,13 @@ function LocalParty({
   members,
   setMembers,
   myBirth,
+  myName,
   fromLink,
 }: {
   members: Member[]
   setMembers: (m: Member[]) => void
   myBirth: Birth | null
+  myName: string
   fromLink: boolean
 }) {
   const canAddMe =
@@ -506,6 +531,7 @@ function LocalParty({
       <AddMember
         onAdd={(m) => setMembers([...members, m])}
         myBirth={myBirth}
+        myName={myName}
         canAddMe={canAddMe}
         title={fromLink ? '나도 넣기' : '멤버 추가'}
         namePlaceholder={fromLink ? '내 이름이나 별명' : '이름이나 별명'}
@@ -539,6 +565,8 @@ export default function Party({
   members,
   setMembers,
   myBirth,
+  myName,
+  setMyName,
   fromLink,
   userId,
   authLoading,
@@ -548,6 +576,8 @@ export default function Party({
   members: Member[]
   setMembers: (m: Member[]) => void
   myBirth: Birth | null
+  myName: string
+  setMyName: (n: string) => void
   fromLink: boolean
   userId: string | null
   authLoading: boolean
@@ -572,11 +602,25 @@ export default function Party({
   // 서버가 없거나(키 미설정) 예전 링크로 들어온 경우는 로컬 모임 그대로.
   if (!supabase || (fromLink && !roomId))
     return (
-      <LocalParty members={members} setMembers={setMembers} myBirth={myBirth} fromLink={fromLink} />
+      <LocalParty
+        members={members}
+        setMembers={setMembers}
+        myBirth={myBirth}
+        myName={myName}
+        fromLink={fromLink}
+      />
     )
 
   if (roomId)
-    return <Room partyId={roomId} myBirth={myBirth} userId={userId} onLeave={() => goRoom(null)} />
+    return (
+      <Room
+        partyId={roomId}
+        myBirth={myBirth}
+        myName={myName}
+        userId={userId}
+        onLeave={() => goRoom(null)}
+      />
+    )
 
   if (authLoading) return <Notice>불러오는 중이에요…</Notice>
 
@@ -604,7 +648,13 @@ export default function Party({
 
   return (
     <div className="flex flex-col gap-2.5">
-      <MyParties userId={userId} myBirth={myBirth} onOpen={goRoom} />
+      <MyParties
+        userId={userId}
+        myBirth={myBirth}
+        myName={myName}
+        setMyName={setMyName}
+        onOpen={goRoom}
+      />
       <button onClick={signOut} className="py-2 text-[14px] text-ink-faint underline">
         로그아웃
       </button>

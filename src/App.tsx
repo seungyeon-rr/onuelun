@@ -9,6 +9,7 @@ import Party from './tabs/Party'
 
 const STORAGE_KEY = 'oneulun.birth'
 const PARTY_KEY = 'oneulun.party'
+const NAME_KEY = 'oneulun.name'
 
 const TABS = [
   { key: 'daily', label: '점메추', char: '食' },
@@ -51,7 +52,16 @@ export default function App() {
   const [editing, setEditing] = useState(false)
   const [draft, setDraft] = useState<Birth | null>(null)
 
-  const { userId, loading: authLoading, signIn, signOut } = useAuth()
+  const { userId, myName: kakaoName, loading: authLoading, signIn, signOut } = useAuth()
+
+  // 기본값은 카카오 닉네임이고, 고치면 이 기기에 남는다.
+  // ponytail: 이름은 이 기기까지만 따라간다. 폰↔PC까지 맞추려면 profiles에 컬럼 하나 더.
+  const [nameOverride, setNameOverride] = useState(() => localStorage.getItem(NAME_KEY) ?? '')
+  const myName = nameOverride.trim() || kakaoName
+  const setMyName = (n: string) => {
+    setNameOverride(n)
+    localStorage.setItem(NAME_KEY, n)
+  }
 
   const birth = guest ?? myBirth
 
@@ -145,6 +155,8 @@ export default function App() {
             myBirth={myBirth}
             fromLink={partyFromLink}
             userId={userId}
+            myName={myName}
+            setMyName={setMyName}
             authLoading={authLoading}
             signIn={signIn}
             signOut={signOut}

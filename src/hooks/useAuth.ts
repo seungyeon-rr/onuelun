@@ -17,10 +17,16 @@ export function useAuth() {
     return () => data.subscription.unsubscribe()
   }, [])
 
+  // 카카오 닉네임은 공급자마다 키가 달라 순서대로 짚는다. 없으면 '나'로 두고 계속 굴러간다.
+  const meta = session?.user.user_metadata as Record<string, string> | undefined
+  const nickname = meta?.name || meta?.full_name || meta?.nickname || meta?.preferred_username
+
   return {
     session,
     loading,
     userId: session?.user.id ?? null,
+    /** 모임에 나를 넣을 때 쓰는 이름. 비로그인이면 '나'. */
+    myName: nickname?.trim().slice(0, 12) || '나',
     signIn: async () => {
       if (!supabase) return
       try {
