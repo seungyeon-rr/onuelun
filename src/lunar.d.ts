@@ -21,6 +21,9 @@ declare module 'lunar-javascript' {
   export class Lunar {
     getEightChar(): EightChar
     getDayInGanZhi(): string
+    /** 음력 월. 윤달이면 음수 */
+    getMonth(): number
+    getDay(): number
   }
   export class Solar {
     static fromYmdHms(y: number, m: number, d: number, h: number, mi: number, s: number): Solar

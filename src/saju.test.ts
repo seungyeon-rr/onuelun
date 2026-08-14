@@ -3,9 +3,9 @@ import { Solar } from 'lunar-javascript'
 import {
   calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
   GANS, SHISHEN, ELEMENTS, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen, elementOfGan,
-  zhiIndexOf, hourOfZhi, zhiRange,
+  zhiIndexOf, hourOfZhi, zhiRange, isOffDay,
 } from './saju'
-import { GAN_META, PAIR_CHEMI } from './data'
+import { GAN_META, PAIR_CHEMI, DAILY } from './data'
 
 describe('팔자 계산', () => {
   it('알려진 생년월일시의 사주가 일치한다', () => {
@@ -223,6 +223,28 @@ describe('십이지시', () => {
     for (let i = 0; i < 12; i++) {
       const saju = calcSaju({ y: 1993, m: 5, d: 12, h: hourOfZhi(i) })
       expect(saju.pillars[3][1]).toBe(ZHI_HANJA[i])
+    }
+  })
+})
+
+describe('쉬는 날', () => {
+  it('주말과 공휴일을 잡아낸다', () => {
+    expect(isOffDay(new Date(2026, 7, 15))).toBe(true) // 광복절 (토)
+    expect(isOffDay(new Date(2026, 0, 1))).toBe(true) // 신정 (목)
+    expect(isOffDay(new Date(2026, 1, 17))).toBe(true) // 설날, 음력 1/1 (화)
+    expect(isOffDay(new Date(2026, 8, 25))).toBe(true) // 추석, 음력 8/15 (금)
+    expect(isOffDay(new Date(2026, 4, 24))).toBe(true) // 부처님오신날, 음력 4/8 (일)
+    expect(isOffDay(new Date(2026, 7, 16))).toBe(true) // 일요일
+    expect(isOffDay(new Date(2026, 7, 19))).toBe(false) // 그냥 수요일
+    expect(isOffDay(new Date(2026, 8, 24))).toBe(true) // 추석 연휴 첫날, 음력 8/14 (목)
+    expect(isOffDay(new Date(2026, 1, 16))).toBe(false) // 설 전날(섣달그믐)은 안 본다 (월)
+  })
+
+  it('회사 추천이 있는 목록은 그걸 빼도 남는 게 있다', () => {
+    for (const f of Object.values(DAILY)) {
+      for (const list of [f.menu, f.drink, f.avoid]) {
+        expect(list.filter((t) => !t.office).length).toBeGreaterThan(0)
+      }
     }
   })
 })

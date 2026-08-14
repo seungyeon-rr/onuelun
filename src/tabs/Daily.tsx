@@ -1,4 +1,6 @@
-import { calcSaju, dateKey, ganOfDay, seededPick, todayShiShen, SHISHEN_KO, type Birth } from '../saju'
+import {
+  calcSaju, dateKey, ganOfDay, isOffDay, seededPick, todayShiShen, SHISHEN_KO, type Birth,
+} from '../saju'
 import { DAILY, PAIR_CHEMI, type Tip } from '../data'
 import { Panel, Label, Seal, Cat } from '../ui'
 
@@ -12,9 +14,15 @@ export default function Daily({ birth }: { birth: Birth }) {
 
   // 날짜와 일간이 같으면 언제 열어도 같은 결과가 나와야 한다. 새로고침으로 다시 뽑히면 재미가 없다.
   const seed = `${dateKey(today)}|${saju.dayGan}|${shishen}`
-  const menu = seededPick(f.menu, seed + 'menu')
-  const drink = seededPick(f.drink, seed + 'drink')
-  const avoid = seededPick(f.avoid, seed + 'avoid')
+  // 주말·공휴일엔 구내식당도 상사도 없다. 그날은 회사 얘기를 후보에서 뺀다.
+  const off = isOffDay(today)
+  const pick = (list: Tip[], key: string) => {
+    const pool = off ? list.filter((t) => !t.office) : list
+    return seededPick(pool.length ? pool : list, seed + key)
+  }
+  const menu = pick(f.menu, 'menu')
+  const drink = pick(f.drink, 'drink')
+  const avoid = pick(f.avoid, 'avoid')
 
   // 오늘부터 7일. 일간이 매일 바뀌니 십신 7개도 서로 다르고, 최고날과 최악날이 겹치지 않는다.
   // ponytail: 날의 점수는 사람 궁합 점수를 그대로 쓴다. 같은 십신 성격을 재는 거라 방향이 안 어긋난다.

@@ -247,6 +247,25 @@ export function seededPick<T>(list: T[], seed: string): T {
   return list[(h >>> 0) % list.length]
 }
 
+/** 양력 고정 공휴일 (월-일) */
+const SOLAR_OFF = ['1-1', '3-1', '5-5', '6-6', '8-15', '10-3', '10-9', '12-25']
+
+/**
+ * 음력 공휴일. 설 연휴 이틀(1/1·1/2), 부처님오신날(4/8), 추석 연휴 사흘(8/14~16).
+ * ponytail: 설 전날은 음력 12월 그믐이라 29일인 해와 30일인 해가 갈린다. 하루 놓치는 쪽을
+ * 택했다. 대체공휴일·임시공휴일도 안 본다. 회사 얘기를 거를 용도라 이 정도면 충분하다.
+ */
+const LUNAR_OFF = ['1-1', '1-2', '4-8', '8-14', '8-15', '8-16']
+
+/** 주말이거나 공휴일. 이 날엔 회사에 없다. */
+export function isOffDay(d: Date): boolean {
+  const day = d.getDay()
+  if (day === 0 || day === 6) return true
+  if (SOLAR_OFF.includes(`${d.getMonth() + 1}-${d.getDate()}`)) return true
+  const lunar = Solar.fromDate(d).getLunar()
+  return LUNAR_OFF.includes(`${lunar.getMonth()}-${lunar.getDay()}`)
+}
+
 export function dateKey(d: Date): string {
   return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`
 }
