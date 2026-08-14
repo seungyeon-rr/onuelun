@@ -1,108 +1,133 @@
 import type { Element } from './saju'
 
-/** 회갈색 램킨. 이 앱의 심볼이자 기본 모습이다. */
-export const MASCOT_COLOR = '#A2948B'
+/** 우리 고양이 회색. 이 앱의 심볼 — 오행 고양이들과 달리 몸통 없이 얼굴만이다. */
+export const MASCOT_COLOR = '#A6A19B'
 
 /**
  * 26x21 도트 스프라이트. 자세별로 한 장씩, 털색(c)·무늬색(d)·홍채(y)만 갈아끼운다.
- * o=외곽 c=몸털 d=무늬 w=흰털 p=귀분홍 n=코 e=눈동자 y=홍채 h=하이라이트
+ * 머리 16x16, 몸통 5줄. 얼굴 무늬는 자세별 스프라이트에 직접 박아 넣는다(자세는 오행마다 하나씩이라 겹치지 않는다).
+ * o=외곽 c=몸털 d=무늬 k=검정얼룩 w=흰털 p=귀·볼분홍 n=코 y=눈 h=하이라이트
  */
 export const SPRITES = {
-  /** 앉기 */
+  /** 심볼 전용 · 우리 고양이 얼굴 (몸통 없음) */
+  face: [
+    '..........................',
+    '..........................',
+    '.....oo...........oo......',
+    '.....oco.........oco......',
+    '.....ocpo.......opco......',
+    '.....ocpooooooooopco......',
+    '.....occccccccccccco......',
+    '....occccccccccccccco.....',
+    '....occccccccccccccco.....',
+    '....occccccccccccccco.....',
+    '....occchycccccyhccco.....',
+    '..ooocccyycccccyycccooo...',
+    '....ocpcyywwwwwyycpco.....',
+    '..ooocccppwwowwppcccooo...',
+    '....occwwwwowowwwwcco.....',
+    '.....ocwwwwwwwwwwwco......',
+    '......ocwwwwwwwwwco.......',
+    '.......ooooooooooo........',
+    '..........................',
+    '..........................',
+    '..........................',
+  ],
+  /** 앉기 · 치즈 */
   sit: [
-    '..oo......oo..............',
-    '..oco....oco..............',
-    '..ocpoooopco..............',
-    '.occcccccccco.............',
-    '.occdcddcdcco.............',
-    '.occhyccyhcco.............',
-    '.occyecceycco.............',
-    '.occcwnnwccco.............',
-    '.occcwoowccco.............',
-    '.occcwwwwccco.............',
-    '..occcccccco..............',
-    '.ocooooooooco.............',
-    '.occcccccccco.....oo......',
-    'occdccccccdcco...occo.....',
-    'occcwwwwwwccco...occo.....',
-    'occdwwwwwwdcco...oddo.....',
-    'occcwwwwwwccco...occo.....',
-    'occdwwwwwwdcco...occo.....',
-    'occwwwwwwwwccooooocco.....',
-    'ocwwwwowwwwccocccccco.....',
-    '.oooooooooooooooooooo.....',
+    '....oo..........oo........',
+    '....oco........oco........',
+    '....ocpo......opco........',
+    '....ocpoooooooopco........',
+    '....occcccccccccco........',
+    '...occcdccddccdccco.......',
+    '...occcdccddccdccco.......',
+    '...occccdccccdcccco.......',
+    '...occchyccccyhccco.......',
+    '...ocdcyyccccyycdco.......',
+    '...ocdcyywwwwyycdco.......',
+    '...occcwwwnnwwwccco.......',
+    '...occwwwwoowwwwcco.......',
+    '...occwwwwwwwwwwcco.......',
+    '....ocwwwwwwwwwwco........',
+    '.....oooooooooooo.........',
+    '.......ocdcccco...........',
+    '.....ocdcwwwwcdco..oo.....',
+    '.....occwwwwwwcco.occo....',
+    '.....occwwwowwwcocccco....',
+    '.....ooooooooooooooooo....',
   ],
-  /** 서기 */
+  /** 서기 · 고등어 */
   stand: [
-    '.oo......oo...............',
-    '.oco....oco...............',
-    '.ocpoooopco...............',
-    'occcccccccco..........oo..',
-    'occdcddcdcco.........occo.',
-    'occhyccyhcco.........occo.',
-    'occyecceycco.........oddo.',
-    'occcwnnwccco.........occo.',
-    'occcwoowcccooooooooooocco.',
-    'occcwwwwcccccccccccccccco.',
-    '.occcccccccccccccccccccco.',
-    '..oooooooocccccccccccccco.',
-    '..........occcdccdccdccco.',
-    '..........occcdccdccdccco.',
-    '..........occcdccdccdccco.',
-    '..........ocwwwwwwwwwwwco.',
-    '..........occcoooooooccco.',
-    '..........owwwo.....owwwo.',
-    '..........owwwo.....owwwo.',
-    '..........owwwo.....owwwo.',
-    '..........ooooo.....ooooo.',
+    '....oo..........oo........',
+    '....oco........oco........',
+    '....ocpo......opco........',
+    '....ocpoooooooopco........',
+    '....occcccccccccco........',
+    '...occcdccddccdccco.......',
+    '...occcdccddccdccco.......',
+    '...occccdccccdcccco.......',
+    '...occchyccccyhccco.......',
+    '...ocdcyyccccyycdco.......',
+    '...ocdcyywwwwyycdco.......',
+    '...occcwwwnnwwwccco.......',
+    '...occwwwwoowwwwcco.oo....',
+    '...occwwwwwwwwwwccoocco...',
+    '....ocwwwwwwwwwwco.oddo...',
+    '.....oooooooooooo..occo...',
+    '......ocdcwwwcdco..oddo...',
+    '.....ocdccwwwccdco.occo...',
+    '.....ocdcooooocdcooccco...',
+    '.....owwwo...owwwocccco...',
+    '.....ooooo...oooooooooo...',
   ],
-  /** 식빵 굽기 */
+  /** 식빵 굽기 · 삼색이 */
   loaf: [
-    '..........................',
-    '..........................',
-    '.......oo......oo.........',
-    '.......oco....oco.........',
-    '.......ocpoooopco.........',
-    '......occcccccccco........',
-    '......occdcddcdcco........',
-    '......occhyccyhcco........',
-    '......occyecceycco........',
-    '......occcwnnwccco........',
-    '......occcwoowccco........',
-    '......occcwwwwccco........',
-    '.......occcccccco.........',
-    '.....occoooooooocco.......',
-    '....ocddddccccccccco......',
-    '...ocdddddccccccddddco....',
-    '..ocdddddcccccccdddddco...',
-    '..occccccccccccccddddco...',
-    '..occccccccccccccccccco...',
-    '..occcccwwwowwwccccccco...',
-    '..ooooooooooooooooooooo...',
+    '......oo..........oo......',
+    '......odo........oko......',
+    '......odpo......opko......',
+    '......odpoooooooopko......',
+    '......odddcccccckkko......',
+    '.....oddddcccccckkkko.....',
+    '.....odddcccccccckkko.....',
+    '.....oddcccccccccckko.....',
+    '.....oddchyccccyhckko.....',
+    '.....oddcyyccccyyckko.....',
+    '.....oddcyywwwwyyckko.....',
+    '.....occcwwwnnwwwccco.....',
+    '.....occwwwwoowwwwcco.....',
+    '.....occwwwwwwwwwwcco.....',
+    '......ocwwwwwwwwwwco......',
+    '.......oooooooooooo.......',
+    '........occccddddo........',
+    '......occcddddkkkcco......',
+    '......occccdddkkkcco......',
+    '......occcwwwowwwcco......',
+    '......oooooooooooooo......',
   ],
   /** 복슬복슬 앉기 */
   fluff: [
-    '.......oo......oo.........',
-    '.......oco....oco.........',
-    '.......ocpoooopco.........',
-    '......occcccccccco........',
-    '......occdcddcdcco........',
-    '......occhyccyhcco........',
-    '......occyecceycco........',
-    '......occcwnnwccco........',
-    '......occcwoowccco........',
-    '......occcwwwwccco........',
-    '.......occcccccco.........',
-    '.....occoooooooocco.......',
+    '.....oo..........oo.......',
+    '.....oco........oco.......',
+    '.....ocpo......opco.......',
+    '.....ocpoooooooopco.......',
+    '.....occcccccccccco.......',
     '....occcccccccccccco......',
-    '...occccccccccccccco......',
-    '..occccwwwwwwwwcccco..oo..',
-    '..occdcwwwwwwwwcdcco.occo.',
-    '..occccwwwwwwwwccccoocccco',
-    '..occcwwwwwwwwwwcccoocdcco',
-    '..occwwwwwwwwwwwwccoocccco',
-    '..occccwwwowwwcccccocccco.',
-    '..ooooooooooooooooooooooo.',
+    '....occcccccccccccco......',
+    '....occcccccccccccco......',
+    '....occchyccccyhccco......',
+    '....occcyyccccyyccco......',
+    '....ocpcyywwwwyycpco......',
+    '....occcwwwnnwwwccco......',
+    '....occwwwwoowwwwcco......',
+    '....occwwwwwwwwwwcco......',
+    '.....ocwwwwwwwwwwco.......',
+    '......oooooooooooo........',
+    '.......occcccccco.........',
+    '.....occccccccccco...oo...',
+    '....occwwwwwwwwwcco.occco.',
+    '....occcwwwowwwcccoccccco.',
+    '....ooooooooooooooooooooo.',
   ],
   /** 눕기 */
   lie: [
@@ -110,39 +135,38 @@ export const SPRITES = {
     '..........................',
     '..........................',
     '..........................',
-    '..........................',
-    '..........................',
-    '.oo......oo...............',
-    '.oco....oco...............',
-    '.ocpoooopco...............',
-    'occcccccccco..............',
-    'occdcddcdcco..............',
-    'occhyccyhcco...ooooo......',
-    'occyecceycco..occccco.....',
-    'occcwnnwccco.occccccco.oo.',
-    'occcwoowccccccccccccccocco',
-    'occcwwwwccccccdccdccccocco',
-    '.occccccccccccccccccccoddo',
-    '..ooooooooccccdccdccccocco',
-    '.occccccccccccccccccccccco',
-    '.owwwwwwwcccccccccccccoooo',
-    '.ooooooooooooooooooooooooo',
+    '.oo..........oo...........',
+    '.oco........oco...........',
+    '.ocpo......opco...........',
+    '.ocpoooooooopco...........',
+    '.occcccccccccco...........',
+    'occcccccccccccco..........',
+    'occcccccccccccco..........',
+    'occcccccccccccco..........',
+    'occchyccccyhccco..........',
+    'occcyyccccyyccco..........',
+    'ocpcyywwwwyycpco..........',
+    'occcwwwnnwwwccco.ooooo....',
+    'occwwwwoowwwwccooccccco...',
+    'occwwwwwwwwwwccccccccco...',
+    '.ocwwwwwwwwwwcccccdcccoooo',
+    '..oooooooooooocccccccccccc',
+    '..oooooooooooooooooooooooo',
   ],
 }
 
-/** 자세도 무늬도 오행마다 다르다. c=털 d=얼룩 y=홍채 */
-export const COATS: Record<
-  Element,
-  { pose: keyof typeof SPRITES; c: string; d: string; y: string }
-> = {
-  木: { pose: 'stand', c: '#7FBFA6', d: '#35735E', y: '#4FB58B' }, // 고등어
-  火: { pose: 'sit', c: '#FFA98E', d: '#E2664F', y: '#C98A1E' }, // 치즈
-  土: { pose: 'loaf', c: '#F2B544', d: '#4A4038', y: '#5FA07A' }, // 삼색이
-  金: { pose: 'fluff', c: '#D8D3CA', d: '#ADA69A', y: '#6B96DE' }, // 페르시안
-  水: { pose: 'lie', c: '#3A4560', d: '#28304A', y: '#E2A93B' }, // 검정
+/** 자세 + 털색(c) · 무늬색(d) · 검정얼룩(k, 삼색이만) · 눈색(y). */
+export type Coat = { pose: keyof typeof SPRITES; c: string; d: string; y: string; k?: string }
+
+export const COATS: Record<Element, Coat> = {
+  木: { pose: 'stand', c: '#98865F', d: '#37301F', y: '#8FD13A' }, // 고등어
+  火: { pose: 'sit', c: '#E2A468', d: '#BE6F33', y: '#3D9E52' }, // 치즈
+  土: { pose: 'loaf', c: '#FBF7EF', d: '#E08A3C', y: '#7CB342', k: '#2E2A26' }, // 삼색이
+  金: { pose: 'lie', c: '#3A4560', d: '#28304A', y: '#FFC02E' }, // 검정
+  水: { pose: 'fluff', c: '#F2EDE2', d: '#DCD3C2', y: '#3E7BD6' }, // 하얀 고양이
 }
 
-export const MASCOT = { pose: 'sit', c: MASCOT_COLOR, d: '#8B7D73', y: '#C5BE55' } as const
+export const MASCOT: Coat = { pose: 'face', c: MASCOT_COLOR, d: '#8A857E', y: '#9A8F2E' }
 
 /** 고양이가 달라져도 안 변하는 색. */
 export const PIXEL: Record<string, string> = {
@@ -150,11 +174,9 @@ export const PIXEL: Record<string, string> = {
   h: '#FFFFFF', n: '#E8918C',
 }
 
-/** 오행 표식 3x3. 등 위에 떠 있다. */
-export const TOPPER: Record<Element, { rows: string[]; color: string; alt?: string }> = {
-  木: { rows: ['.gg', 'gga', '.a.'], color: '#4FB58B', alt: '#2E8563' },
-  火: { rows: ['.g.', 'ggg', '.g.'], color: '#D4483A' },
-  土: { rows: ['...', '.gg', 'gggg'], color: '#C98A1E' },
-  金: { rows: ['.g.', 'ggg', '.g.'], color: '#8A8377' },
-  水: { rows: ['.g.', 'ggg', 'gg.'], color: '#3F66AC' },
+/** 오행 표식. 모양은 다 같은 십자, 색만 다르다. */
+export const MARK = ['.g.', 'ggg', '.g.']
+
+export const MARK_COLOR: Record<Element, string> = {
+  木: '#4FB58B', 火: '#D4483A', 土: '#C98A1E', 金: '#8A8377', 水: '#3F66AC',
 }

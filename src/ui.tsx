@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react'
 import { HOUR_UNKNOWN, type Birth, type Element } from './saju'
-import { COATS, MASCOT, PIXEL, SPRITES, TOPPER } from './cat'
+import { COATS, MARK, MARK_COLOR, MASCOT, PIXEL, SPRITES } from './cat'
 
 
-function Px({ rows, at, color }: { rows: string[]; at: [number, number]; color: (ch: string) => string }) {
+function Px({ rows, at = [0, 0], color }: { rows: string[]; at?: [number, number]; color: (ch: string) => string }) {
   return (
     <>
       {rows.flatMap((row, y) =>
@@ -28,8 +28,8 @@ export function Cat({
   className?: string
 }) {
   const cat = el ? COATS[el] : MASCOT
-  const palette: Record<string, string> = { ...PIXEL, c: cat.c, d: cat.d, y: cat.y }
-  const top = el ? TOPPER[el] : null
+  const palette: Record<string, string> = { ...PIXEL, c: cat.c, d: cat.d, y: cat.y, k: cat.k ?? cat.d }
+  const mark = el ? MARK_COLOR[el] : null
 
   return (
     <svg
@@ -40,14 +40,8 @@ export function Cat({
       aria-hidden
       className={className}
     >
-      <Px rows={SPRITES[cat.pose]} at={[0, 0]} color={(ch) => palette[ch]} />
-      {top && (
-        <Px
-          rows={top.rows}
-          at={[22, 0]}
-          color={(ch) => (ch === 'a' ? (top.alt ?? top.color) : top.color)}
-        />
-      )}
+      <Px rows={SPRITES[cat.pose]} color={(ch) => palette[ch]} />
+      {mark && <Px rows={MARK} at={[22, 0]} color={() => mark} />}
     </svg>
   )
 }

@@ -3,7 +3,7 @@ import { COATS, PIXEL, SPRITES } from './cat'
 
 // 도트를 손으로 찍으니 한 칸만 밀려도 조용히 깨진다. 격자 크기와 색 정의만 지킨다.
 describe('고양이 스프라이트', () => {
-  const paletteKeys = new Set([...Object.keys(PIXEL), 'c', 'd', 'y', '.'])
+  const paletteKeys = new Set([...Object.keys(PIXEL), 'c', 'd', 'y', 'k', '.'])
 
   it('모두 26x21이고 정의된 색만 쓴다', () => {
     for (const [pose, rows] of Object.entries(SPRITES)) {
