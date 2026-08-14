@@ -5,13 +5,15 @@ import {
 } from '../saju'
 import { ELEMENT_META } from '../data'
 import { Panel, Label, BirthField, ShareButton, Cat } from '../ui'
-import { newPartyId, supabase, type PartyRow } from '../supabase'
+import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
 
 /** 한 오행이 이 비율을 넘으면 모임이 그쪽으로 쏠린 것으로 본다 (균등하면 20%) */
 const DOMINANT = 0.3
 
 const roomUrl = (id: string) => `${location.origin}${location.pathname}?t=party&party=${id}`
+
+const readRoomId = () => cleanPartyId(new URLSearchParams(location.search).get('party'))
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
@@ -469,9 +471,7 @@ export default function Party({
   signIn: () => void
   signOut: () => void
 }) {
-  const [roomId, setRoomId] = useState<string | null>(
-    () => new URLSearchParams(location.search).get('party'),
-  )
+  const [roomId, setRoomId] = useState<string | null>(readRoomId)
 
   // 모임을 열고 닫을 때 주소창도 같이 움직인다. 주소창이 곧 공유할 링크다.
   const goRoom = (id: string | null) => {
@@ -481,7 +481,7 @@ export default function Party({
 
   // 주소창을 건드렸으니 뒤로가기도 따라와야 한다.
   useEffect(() => {
-    const onPop = () => setRoomId(new URLSearchParams(location.search).get('party'))
+    const onPop = () => setRoomId(readRoomId())
     addEventListener('popstate', onPop)
     return () => removeEventListener('popstate', onPop)
   }, [])

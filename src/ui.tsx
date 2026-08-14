@@ -150,7 +150,9 @@ export function ShareButton({
     <button
       onClick={async () => {
         try {
-          if (navigator.share) await navigator.share({ text, url })
+          // text가 아니라 title로 넘긴다. text는 공유 시트가 url 뒤에 그대로 이어붙여서
+          // "...party=abc 우리 모임 기운..." 한 덩어리가 되고, 링크의 마지막 값이 오염된다.
+          if (navigator.share) await navigator.share({ title: text, url })
           else {
             await navigator.clipboard.writeText(url)
             alert('링크를 복사했어요. 단톡방에 붙여넣으세요.')

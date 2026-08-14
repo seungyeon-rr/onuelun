@@ -12,6 +12,13 @@ export const supabase = url && key ? createClient(url, key) : null
 /** 모임 id는 곧 접근 열쇠다. Math.random은 예측 가능하므로 쓰지 않는다. */
 export const newPartyId = () => crypto.randomUUID().replace(/-/g, '').slice(0, 16)
 
+/**
+ * 링크에서 읽은 모임 id를 16자리 hex로 되돌린다.
+ * 공유 시트가 링크 뒤에 공유 문구를 이어붙여 보내는 일이 있어서, 그런 링크도 열려야 한다.
+ */
+export const cleanPartyId = (raw: string | null | undefined) =>
+  raw?.replace(/[^a-f0-9]/gi, '').slice(0, 16) || null
+
 export type PartyRow = {
   id: string
   name: string
