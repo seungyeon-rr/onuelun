@@ -12,7 +12,7 @@ export type PartyMember = NonNullable<ReturnType<typeof toMember>>
 
 // 이 기기에서 내가 넣은 참여 기록
 // 링크로 그냥 들어간 사람은 서버에 흔적이 안 남는다. 나중에 로그인할 때
-// 이 기록으로 자기 행을 찾아 이름표를 붙이고, 그 모임이 내 목록에 뜬다.
+// 이 기록으로 자기 행을 찾아 이름표를 붙이고, 그 파티가 내 목록에 뜬다.
 
 const JOINED_KEY = 'oneulun.joined'
 
@@ -45,7 +45,7 @@ async function claimJoined(userId: string) {
 }
 
 /**
- * 링크로 연 모임 하나. 서버가 진실이고 화면은 구독으로 따라간다.
+ * 링크로 연 파티 하나. 서버가 진실이고 화면은 구독으로 따라간다.
  * partyId가 null이면 아무것도 안 한다.
  */
 export function useParty(partyId: string | null, userId: string | null) {
@@ -65,9 +65,9 @@ export function useParty(partyId: string | null, userId: string | null) {
       if (m.error) throw m.error
       setParty(p.data)
       setMembers(((m.data ?? []) as PartyMemberRow[]).map(toMember).filter((x) => x !== null))
-      setError(p.data ? null : '없는 모임이에요. 링크가 잘렸거나 삭제됐을 수 있어요.')
+      setError(p.data ? null : '없는 파티예요. 링크가 잘렸거나 삭제됐을 수 있어요.')
     } catch (e) {
-      setError(toKoreanError(e, '모임을 불러오지 못했어요.'))
+      setError(toKoreanError(e, '파티를 불러오지 못했어요.'))
     } finally {
       setLoading(false)
     }
@@ -125,11 +125,11 @@ export function useParty(partyId: string | null, userId: string | null) {
       if (error) throw error
       await reload()
     } catch (e) {
-      alert(toKoreanError(e, '빼지 못했어요. 모임을 만든 사람만 뺄 수 있어요.'))
+      alert(toKoreanError(e, '빼지 못했어요. 파티를 만든 사람만 뺄 수 있어요.'))
     }
   }
 
-  /** 모임 이름은 나중에, 필요할 때만 붙인다. parties는 구독하지 않으니 화면은 즉시 반영해둔다. */
+  /** 파티 이름은 나중에, 필요할 때만 붙인다. parties는 구독하지 않으니 화면은 즉시 반영해둔다. */
   const rename = async (name: string) => {
     if (!supabase || !partyId) return
     setParty((p) => (p ? { ...p, name } : p))
@@ -180,7 +180,7 @@ export function useMyParties(userId: string | null) {
 
       const mine = withCount(owned.data ?? [], true)
       const mineIds = new Set(mine.map((p) => p.id))
-      // 서버에 붙은 참여 기록과 이 기기 기록을 합친다. 내가 만든 모임은 빼고.
+      // 서버에 붙은 참여 기록과 이 기기 기록을 합친다. 내가 만든 파티는 빼고.
       const joinedIds = [
         ...new Set([
           ...((joinedRows.data ?? []) as { party_id: string }[]).map((r) => r.party_id),
@@ -200,7 +200,7 @@ export function useMyParties(userId: string | null) {
       )
       setError(null)
     } catch (e) {
-      setError(toKoreanError(e, '모임 목록을 불러오지 못했어요.'))
+      setError(toKoreanError(e, '파티 목록을 불러오지 못했어요.'))
     } finally {
       setLoading(false)
     }
@@ -226,7 +226,7 @@ export function useMyParties(userId: string | null) {
       await reload()
       return id
     } catch (e) {
-      alert(toKoreanError(e, '모임을 만들지 못했어요.'))
+      alert(toKoreanError(e, '파티를 만들지 못했어요.'))
       return null
     }
   }
@@ -238,7 +238,7 @@ export function useMyParties(userId: string | null) {
       if (error) throw error
       await reload()
     } catch (e) {
-      alert(toKoreanError(e, '모임을 삭제하지 못했어요.'))
+      alert(toKoreanError(e, '파티를 삭제하지 못했어요.'))
     }
   }
 

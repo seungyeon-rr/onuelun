@@ -9,7 +9,7 @@ import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
 
-/** 한 오행이 이 비율을 넘으면 모임이 그쪽으로 쏠린 것으로 본다 (균등하면 20%) */
+/** 한 오행이 이 비율을 넘으면 파티가 그쪽으로 쏠린 것으로 본다 (균등하면 20%) */
 const DOMINANT = 0.3
 
 const roomUrl = (id: string) => `${location.origin}${location.pathname}?t=party&party=${id}`
@@ -34,7 +34,7 @@ function grade(score: number) {
 /**
  * 오행 관계도. ELEMENTS 순서(木火土金水)가 그대로 상생 순서라, 시계방향으로 놓으면
  * 이웃이 상생이고 두 칸 건너가 상극이 된다. 선 목록을 따로 적을 필요가 없다.
- * 양쪽에 사람이 다 있는 선만 진하게 그린다. 우리 모임에서 실제로 도는 관계만 보이게.
+ * 양쪽에 사람이 다 있는 선만 진하게 그린다. 우리 파티에서 실제로 도는 관계만 보이게.
  */
 function Wuxing({ read }: { read: Read[] }) {
   const count = Object.fromEntries(ELEMENTS.map((e) => [e, 0])) as Record<Element, number>
@@ -131,7 +131,7 @@ function Wuxing({ read }: { read: Read[] }) {
           ? '부딪히는 축이 없어요. 편한 대신 아무도 안 밀어붙입니다.'
           : live.born === 0
             ? '서로 조이기만 하는 판이에요. 일은 되는데 오래 못 갑니다.'
-            : '밀어주는 축과 조이는 축이 같이 있어요. 굴러가는 모임입니다.'}
+            : '밀어주는 축과 조이는 축이 같이 있어요. 굴러가는 파티입니다.'}
       </p>
     </div>
   )
@@ -183,7 +183,7 @@ function Balance({ members }: { members: Member[] }) {
   return (
     <>
       <Panel delay={120}>
-        <Label>우리 모임 유형</Label>
+        <Label>우리 파티 유형</Label>
         <p className="mb-4 font-display text-[17px] leading-snug text-seal">{partyType}</p>
         <div className="mt-3 flex h-5 overflow-hidden border-[3px] border-ink">
           {ELEMENTS.map((e) =>
@@ -232,7 +232,7 @@ function Balance({ members }: { members: Member[] }) {
       </Panel>
 
       <Panel delay={210} className="bg-seal/[0.07]">
-        <Label>우리 모임은요</Label>
+        <Label>우리 파티은요</Label>
         <ul className="flex flex-col gap-2.5">
           {missing.map((e) => (
             <li key={e} className="text-[14px] leading-relaxed">
@@ -254,7 +254,7 @@ function Balance({ members }: { members: Member[] }) {
           ))}
           {missing.length === 0 && dominant.length === 0 && (
             <li className="text-[14px] leading-relaxed">
-              오행이 고르게 섞였어요. 심심할 만큼 균형 잡힌 모임이에요!
+              오행이 고르게 섞였어요. 심심할 만큼 균형 잡힌 파티예요!
             </li>
           )}
         </ul>
@@ -377,16 +377,16 @@ function Compat({ members }: { members: Member[] }) {
   if (members.length >= 2) return <Balance members={members} />
   return (
     <Notice>
-      {members.length === 1 ? '한 명만 더 들어오면 바로 궁합이 나와요!' : '2명부터 모임 궁합이 나와요!'}
+      {members.length === 1 ? '한 명만 더 들어오면 바로 궁합이 나와요!' : '2명부터 파티 궁합이 나와요!'}
     </Notice>
   )
 }
 
-/** 이름을 안 붙인 모임도 목록에서 서로 구분은 돼야 한다. */
+/** 이름을 안 붙인 파티도 목록에서 서로 구분은 돼야 한다. */
 const partyLabel = (p: PartyRow) => {
   if (p.name) return p.name
   const d = new Date(p.created_at)
-  return `${d.getMonth() + 1}월 ${d.getDate()}일 모임`
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 파티`
 }
 
 
@@ -409,9 +409,9 @@ function Room({
   if (error || !party)
     return (
       <div className="flex flex-col gap-2.5">
-        <Notice>{error ?? '없는 모임이에요.'}</Notice>
+        <Notice>{error ?? '없는 파티예요.'}</Notice>
         <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
-          내 모임 목록으로
+          내 파티 목록으로
         </button>
       </div>
     )
@@ -425,20 +425,20 @@ function Room({
       <Panel className="bg-seal/[0.07] text-center">
         <Cat size={76} className="animate-float mx-auto" />
         {isOwner ? (
-          // 비제어 입력이다. 멤버가 들어와 reload가 돌아도 타이핑 중인 글자를 뺏지 않는다.
+          // 비제어 입력이다. 파티원가 들어와 reload가 돌아도 타이핑 중인 글자를 뺏지 않는다.
           <input
             defaultValue={party.name}
             onBlur={(e) => {
               const v = e.target.value.trim()
               if (v !== party.name) rename(v)
             }}
-            placeholder="모임 이름 붙이기 (예: 3팀 점심)"
+            placeholder="파티 이름 붙이기 (예: 3팀 점심)"
             maxLength={20}
-            aria-label="모임 이름"
+            aria-label="파티 이름"
             className="mt-2 w-full bg-transparent text-center font-display text-[14px] text-seal outline-none placeholder:text-ink-faint"
           />
         ) : (
-          <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 모임'}</h2>
+          <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 파티'}</h2>
         )}
         <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
           {isOwner
@@ -452,7 +452,7 @@ function Room({
         myBirth={myBirth}
         myName={myName}
         canAddMe={!alreadyIn}
-        title={isOwner ? '멤버 추가' : '나도 넣기'}
+        title={isOwner ? '파티원 추가' : '나도 넣기'}
         namePlaceholder={isOwner ? '이름이나 별명' : '내 이름이나 별명'}
       />
 
@@ -463,7 +463,7 @@ function Room({
           onRemove={(i) => {
             const m = members[i]
             if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
-            else alert('모임을 만든 사람만 뺄 수 있어요.')
+            else alert('파티를 만든 사람만 뺄 수 있어요.')
           }}
         />
       )}
@@ -472,7 +472,7 @@ function Room({
 
       <ShareButton
         url={roomUrl(partyId)}
-        text={`${party.name || '우리 모임'} 기운 밸런스 보자`}
+        text={`${party.name || '우리 파티'} 기운 밸런스 보자`}
         label="링크 보내기"
       />
       <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
@@ -481,7 +481,7 @@ function Room({
         누가 들어오면 새로고침 없이 바로 뜹니다.
       </p>
       <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
-        내 모임 목록으로
+        내 파티 목록으로
       </button>
     </div>
   )
@@ -516,10 +516,10 @@ function MyParties({
           className="w-full border-[3px] border-ink bg-hanji px-4 py-3 outline-none placeholder:text-ink-faint focus:border-seal"
         />
         <p className="mb-4 mt-2 text-[13px] text-ink-faint">
-          모임에 나를 넣을 때 이 이름으로 들어가요. 친구들 화면에도 이렇게 보입니다.
+          파티에 나를 넣을 때 이 이름으로 들어가요. 친구들 화면에도 이렇게 보입니다.
         </p>
 
-        {/* 모임 이름은 안 묻는다. 만들고 나서 붙이고 싶으면 방 안에서 붙인다. */}
+        {/* 파티 이름은 안 묻는다. 만들고 나서 붙이고 싶으면 방 안에서 붙인다. */}
         <button
           onClick={async () => {
             const id = await create(newPartyId(), myBirth ? { name: myName, birth: myBirth } : null)
@@ -527,7 +527,7 @@ function MyParties({
           }}
           className={`w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
         >
-          새 모임 만들고 링크 받기
+          새 파티 만들고 링크 받기
         </button>
       </Panel>
 
@@ -536,7 +536,7 @@ function MyParties({
 
       {parties.length > 0 && (
         <Panel delay={60}>
-          <Label>내 모임 {parties.length}개</Label>
+          <Label>내 파티 {parties.length}개</Label>
           <ul className="flex flex-col gap-1">
             {parties.map((p) => (
               <li
@@ -547,7 +547,7 @@ function MyParties({
                   <span className="font-display">{partyLabel(p)}</span>
                   <span className="ml-2 text-[14px] text-ink-faint">{p.count}명</span>
                 </button>
-                {/* 남이 만든 모임은 내가 못 지운다. 지우는 버튼도 보이면 안 된다. */}
+                {/* 남이 만든 파티는 내가 못 지운다. 지우는 버튼도 보이면 안 된다. */}
                 {p.mine ? (
                   <button
                     onClick={() => {
@@ -572,17 +572,17 @@ function MyParties({
 
       {/* 이름 입력을 없앤 대신, 여러 개가 쌓여 헷갈릴 때만 이름 붙이는 곳을 알려준다. */}
       {parties.length >= 2 && parties.some((p) => !p.name) && (
-        <Notice>이름 없는 모임은 만든 날짜로 보여요. 모임을 열면 이름을 붙일 수 있어요.</Notice>
+        <Notice>이름 없는 파티는 만든 날짜로 보여요. 파티를 열면 이름을 붙일 수 있어요.</Notice>
       )}
 
       {!loading && parties.length === 0 && (
-        <Notice>아직 모임이 없어요. 하나 만들거나, 친구가 보낸 링크로 들어가면 여기 쌓여요.</Notice>
+        <Notice>아직 파티가 없어요. 하나 만들거나, 친구가 보낸 링크로 들어가면 여기 쌓여요.</Notice>
       )}
     </div>
   )
 }
 
-// 로컬 모임 — 예전 ?p= 링크, 그리고 서버 키가 없을 때
+// 로컬 파티 — 예전 ?p= 링크, 그리고 서버 키가 없을 때
 
 function LocalParty({
   members,
@@ -605,7 +605,7 @@ function LocalParty({
       {fromLink && (
         <Panel className="bg-seal/[0.07] text-center">
           <Cat size={76} className="animate-float mx-auto" />
-          <h2 className="mt-2 font-display text-[14px] text-seal">친구가 보낸 모임이에요</h2>
+          <h2 className="mt-2 font-display text-[14px] text-seal">친구가 보낸 파티예요</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
             아래에 내 생일을 넣으면 나까지 포함한 궁합이 나와요.
             <br />
@@ -619,7 +619,7 @@ function LocalParty({
         myBirth={myBirth}
         myName={myName}
         canAddMe={canAddMe}
-        title={fromLink ? '나도 넣기' : '멤버 추가'}
+        title={fromLink ? '나도 넣기' : '파티원 추가'}
         namePlaceholder={fromLink ? '내 이름이나 별명' : '이름이나 별명'}
       />
 
@@ -633,7 +633,7 @@ function LocalParty({
         <>
           <ShareButton
             url={`${location.origin}${location.pathname}?t=party&p=${encodeParty(members)}`}
-            text="우리 모임 기운 밸런스 보자"
+            text="우리 파티 기운 밸런스 보자"
             label={fromLink ? '나 넣은 새 링크 보내기' : '링크 만들어서 보내기'}
           />
           <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
@@ -671,7 +671,7 @@ export default function Party({
 }) {
   const [roomId, setRoomId] = useState<string | null>(readRoomId)
 
-  // 모임을 열고 닫을 때 주소창도 같이 움직인다. 주소창이 곧 공유할 링크다.
+  // 파티를 열고 닫을 때 주소창도 같이 움직인다. 주소창이 곧 공유할 링크다.
   const goRoom = (id: string | null) => {
     setRoomId(id)
     history.pushState(null, '', id ? roomUrl(id) : `${location.pathname}?t=party`)
@@ -684,7 +684,7 @@ export default function Party({
     return () => removeEventListener('popstate', onPop)
   }, [])
 
-  // 서버가 없거나(키 미설정) 예전 링크로 들어온 경우는 로컬 모임 그대로.
+  // 서버가 없거나(키 미설정) 예전 링크로 들어온 경우는 로컬 파티 그대로.
   if (!supabase || (fromLink && !roomId))
     return (
       <LocalParty
@@ -714,11 +714,11 @@ export default function Party({
       <div className="flex flex-col gap-2.5">
         <Panel className="text-center">
           <Cat size={100} className="animate-float mx-auto" />
-          <h2 className="mt-3 font-display text-[19px]">모임 만들려면 로그인!</h2>
+          <h2 className="mt-3 font-display text-[19px]">파티 만들려면 로그인!</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
             링크 받은 친구는 로그인 없이 자기 생일만 넣으면 돼요.
             <br />
-            모임을 만들고 목록으로 관리하는 쪽만 로그인이 필요해요.
+            파티를 만들고 목록으로 관리하는 쪽만 로그인이 필요해요.
           </p>
           <button
             onClick={signIn}

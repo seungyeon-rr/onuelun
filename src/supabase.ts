@@ -9,11 +9,11 @@ const key = import.meta.env.VITE_SUPABASE_ANON_KEY
  */
 export const supabase = url && key ? createClient(url, key) : null
 
-/** 모임 id는 곧 접근 열쇠다. Math.random은 예측 가능하므로 쓰지 않는다. */
+/** 파티 id는 곧 접근 열쇠다. Math.random은 예측 가능하므로 쓰지 않는다. */
 export const newPartyId = () => crypto.randomUUID().replace(/-/g, '').slice(0, 16)
 
 /**
- * 링크에서 읽은 모임 id를 16자리 hex로 되돌린다.
+ * 링크에서 읽은 파티 id를 16자리 hex로 되돌린다.
  * 공유 시트가 링크 뒤에 공유 문구를 이어붙여 보내는 일이 있어서, 그런 링크도 열려야 한다.
  */
 export const cleanPartyId = (raw: string | null | undefined) =>
@@ -38,8 +38,8 @@ export type PartyMemberRow = {
 export function toKoreanError(e: unknown, fallback: string) {
   console.error(e)
   const msg = e instanceof Error ? e.message : String(e)
-  if (msg.includes('30명')) return '모임 인원은 30명까지예요.'
+  if (msg.includes('30명')) return '파티 인원은 30명까지예요.'
   if (msg.includes('Failed to fetch')) return '네트워크가 불안정해요. 잠시 후 다시 시도해주세요.'
-  if (msg.includes('row-level security')) return '권한이 없어요. 모임을 만든 사람만 할 수 있어요.'
+  if (msg.includes('row-level security')) return '권한이 없어요. 파티를 만든 사람만 할 수 있어요.'
   return fallback
 }

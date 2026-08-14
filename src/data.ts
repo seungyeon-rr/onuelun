@@ -425,12 +425,12 @@ export const PAIR_CHEMI: Record<ShiShen, { tag: string; score: number; line: (a:
   偏財: { tag: '사고 유발 조합', score: 7, line: (a, b) => `${josa(a, '이가')} ${josa(b, '을를')} 데리고 일을 벌입니다. 즉흥 여행 예약은 이 둘이 붙었을 때 나옵니다.` },
   正財: { tag: '총무 라인', score: 9, line: (a, b) => `${josa(a, '이가')} ${josa(b, '을를')} 착실히 챙깁니다. 회비 관리 맡기면 1원까지 맞아요.` },
   偏官: { tag: '긴장 라인', score: 1, line: (a, b) => `${b}만 오면 ${josa(a, '이가')} 갑자기 정신을 차립니다. 편한 사이는 아닌데 일은 제일 잘 돼요.` },
-  正官: { tag: '어른 모드', score: 6, line: (a, b) => `${josa(a, '은는')} ${b} 앞에선 지각을 안 합니다. 이 둘이 있으면 모임이 제시간에 시작해요.` },
+  正官: { tag: '어른 모드', score: 6, line: (a, b) => `${josa(a, '은는')} ${b} 앞에선 지각을 안 합니다. 이 둘이 있으면 파티가 제시간에 시작해요.` },
   偏印: { tag: '혼자 추측 라인', score: 3, line: (a, b) => `${josa(a, '이가')} ${josa(b, '이가')} 무슨 생각인지 혼자 짐작하다 지칩니다. 그냥 물어보면 3초면 끝날 일이에요.` },
   正印: { tag: '기댐 라인', score: 9, line: (a, b) => `${josa(a, '이가')} 힘들면 제일 먼저 연락하는 사람이 ${b}입니다. 받는 쪽은 그걸 은근히 좋아해요.` },
 }
 
-/** 한 오행으로 쏠린 모임의 별명. 균형 잡혔으면 BALANCED_TYPE. */
+/** 한 오행으로 쏠린 파티의 별명. 균형 잡혔으면 BALANCED_TYPE. */
 export const PARTY_TYPE: Record<Element, string> = {
   木: '아이디어만 쌓이는 기획 회의형',
   火: '5분 만에 불타고 식는 텐션형',
@@ -439,11 +439,11 @@ export const PARTY_TYPE: Record<Element, string> = {
   水: '생각하다 약속이 끝나는 신중형',
 }
 
-export const BALANCED_TYPE = '빈틈이 안 보이는 육각형 모임'
+export const BALANCED_TYPE = '빈틈이 안 보이는 육각형 파티'
 
 /**
  * 오방색: 오행에 그대로 대응하는 한국 전통 5색.
- * strong/missing은 모임 진단용, mine/lack은 개인 카드용이다.
+ * strong/missing은 파티 진단용, mine/lack은 개인 카드용이다.
  */
 export const ELEMENT_META: Record<
   Element,
@@ -499,7 +499,7 @@ export const ELEMENT_META: Record<
     ko: '수',
     color: '#6B96DE',
     label: '흑(黑)',
-    strong: '생각만 하다가 모임이 끝남',
+    strong: '생각만 하다가 파티가 끝남',
     missing: '앞뒤 안 재고 지름. 뒷수습 담당이 없음',
     mine: '재보고 움직입니다. 신중한 대신 타이밍을 놓칠 때가 있어요.',
     lack: '앞뒤 안 재고 먼저 지릅니다. 속도는 빠른데 뒷수습이 남아요.',
