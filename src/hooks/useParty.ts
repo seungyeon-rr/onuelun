@@ -90,9 +90,21 @@ export function useParty(partyId: string | null, userId: string | null) {
     }
   }
 
+  /** 모임 이름은 나중에, 필요할 때만 붙인다. parties는 구독하지 않으니 화면은 즉시 반영해둔다. */
+  const rename = async (name: string) => {
+    if (!supabase || !partyId) return
+    setParty((p) => (p ? { ...p, name } : p))
+    try {
+      const { error } = await supabase.from('parties').update({ name }).eq('id', partyId)
+      if (error) throw error
+    } catch (e) {
+      alert(toKoreanError(e, '이름을 바꾸지 못했어요.'))
+    }
+  }
+
   const isOwner = party !== null && userId !== null && party.owner_id === userId
 
-  return { party, members, loading, error, isOwner, add, remove }
+  return { party, members, loading, error, isOwner, add, remove, rename }
 }
 
 /** 로그인한 사람이 만든 모임 목록. */
@@ -132,10 +144,10 @@ export function useMyParties(userId: string | null) {
     reload()
   }, [reload])
 
-  const create = async (name: string, id: string, first: Member | null) => {
+  const create = async (id: string, first: Member | null) => {
     if (!supabase || !userId) return null
     try {
-      const { error } = await supabase.from('parties').insert({ id, name, owner_id: userId })
+      const { error } = await supabase.from('parties').insert({ id, owner_id: userId })
       if (error) throw error
       if (first) {
         await supabase.from('party_members').insert({

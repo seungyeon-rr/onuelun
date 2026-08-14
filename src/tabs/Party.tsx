@@ -5,7 +5,7 @@ import {
 } from '../saju'
 import { ELEMENT_META } from '../data'
 import { Panel, Label, BirthField, ShareButton, Cat } from '../ui'
-import { newPartyId, supabase } from '../supabase'
+import { newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
 
 /** 한 오행이 이 비율을 넘으면 모임이 그쪽으로 쏠린 것으로 본다 (균등하면 20%) */
@@ -198,6 +198,23 @@ function Notice({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** 나까지 2명이면 바로 결과. 혼자면 한 명만 더 부르면 된다고 알려준다. */
+function Compat({ members }: { members: Member[] }) {
+  if (members.length >= 2) return <Balance members={members} />
+  return (
+    <Notice>
+      {members.length === 1 ? '한 명만 더 들어오면 바로 궁합이 나와요!' : '2명부터 모임 궁합이 나와요!'}
+    </Notice>
+  )
+}
+
+/** 이름을 안 붙인 모임도 목록에서 서로 구분은 돼야 한다. */
+const partyLabel = (p: PartyRow) => {
+  if (p.name) return p.name
+  const d = new Date(p.created_at)
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 모임`
+}
+
 // ─────────────────────────────────────────────────────────────
 // 서버 모임 (실시간)
 // ─────────────────────────────────────────────────────────────
@@ -213,7 +230,7 @@ function Room({
   userId: string | null
   onLeave: () => void
 }) {
-  const { party, members, loading, error, isOwner, add, remove } = useParty(partyId, userId)
+  const { party, members, loading, error, isOwner, add, remove, rename } = useParty(partyId, userId)
 
   if (loading) return <Notice>불러오는 중이에요…</Notice>
   if (error || !party)
@@ -234,7 +251,22 @@ function Room({
     <div className="flex flex-col gap-2.5">
       <Panel className="bg-seal/[0.07] text-center">
         <Cat size={76} className="animate-float mx-auto" />
-        <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 모임'}</h2>
+        {isOwner ? (
+          // 비제어 입력이다. 멤버가 들어와 reload가 돌아도 타이핑 중인 글자를 뺏지 않는다.
+          <input
+            defaultValue={party.name}
+            onBlur={(e) => {
+              const v = e.target.value.trim()
+              if (v !== party.name) rename(v)
+            }}
+            placeholder="모임 이름 붙이기 (예: 3팀 점심)"
+            maxLength={20}
+            aria-label="모임 이름"
+            className="mt-2 w-full bg-transparent text-center font-display text-[14px] text-seal outline-none placeholder:text-ink-faint"
+          />
+        ) : (
+          <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 모임'}</h2>
+        )}
         <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
           {isOwner
             ? '링크를 단톡방에 보내면 친구들이 각자 자기 생일을 넣어요. 넣는 즉시 이 화면에 뜹니다.'
@@ -262,9 +294,13 @@ function Room({
         />
       )}
 
-      {members.length >= 2 ? <Balance members={members} /> : <Notice>2명부터 모임 궁합이 나와요!</Notice>}
+      <Compat members={members} />
 
-      <ShareButton url={roomUrl(partyId)} text="우리 모임 기운 밸런스 보자" label="링크 보내기" />
+      <ShareButton
+        url={roomUrl(partyId)}
+        text={`${party.name || '우리 모임'} 기운 밸런스 보자`}
+        label="링크 보내기"
+      />
       <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
         링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.
         <br />
@@ -291,37 +327,20 @@ function MyParties({
   onOpen: (id: string) => void
 }) {
   const { parties, loading, error, create, remove } = useMyParties(userId)
-  const [name, setName] = useState('')
 
   return (
     <div className="flex flex-col gap-2.5">
       <Panel>
-        <Label>새 모임 만들기</Label>
-        <div className="flex flex-col gap-2">
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="모임 이름 (예: 3팀 점심)"
-            maxLength={20}
-            className="border-[3px] border-ink bg-hanji px-4 py-3 outline-none placeholder:text-ink-faint focus:border-seal"
-          />
-          <button
-            onClick={async () => {
-              const id = await create(
-                name.trim() || '우리 모임',
-                newPartyId(),
-                myBirth ? { name: '나', birth: myBirth } : null,
-              )
-              if (id) {
-                setName('')
-                onOpen(id)
-              }
-            }}
-            className="border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
-          >
-            만들고 링크 받기
-          </button>
-        </div>
+        {/* 이름은 안 묻는다. 만들고 나서 붙이고 싶으면 방 안에서 붙인다. */}
+        <button
+          onClick={async () => {
+            const id = await create(newPartyId(), myBirth ? { name: '나', birth: myBirth } : null)
+            if (id) onOpen(id)
+          }}
+          className="w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+        >
+          새 모임 만들고 링크 받기
+        </button>
       </Panel>
 
       {loading && <Notice>불러오는 중이에요…</Notice>}
@@ -337,15 +356,14 @@ function MyParties({
                 className="flex items-center gap-2.5 border-b border-ink/[0.06] py-2.5 last:border-0"
               >
                 <button onClick={() => onOpen(p.id)} className="flex-1 truncate text-left">
-                  <span className="font-display">{p.name || '우리 모임'}</span>
+                  <span className="font-display">{partyLabel(p)}</span>
                   <span className="ml-2 text-[14px] text-ink-faint">{p.count}명</span>
                 </button>
                 <button
                   onClick={() => {
-                    if (confirm(`"${p.name || '우리 모임'}"을 삭제할까요? 링크도 안 열려요.`))
-                      remove(p.id)
+                    if (confirm(`"${partyLabel(p)}"을 삭제할까요? 링크도 안 열려요.`)) remove(p.id)
                   }}
-                  aria-label={`${p.name} 삭제`}
+                  aria-label={`${partyLabel(p)} 삭제`}
                   className="px-1 text-[14px] leading-none text-ink-faint"
                 >
                   ×
@@ -356,8 +374,13 @@ function MyParties({
         </Panel>
       )}
 
+      {/* 이름 입력을 없앤 대신, 여러 개가 쌓여 헷갈릴 때만 이름 붙이는 곳을 알려준다. */}
+      {parties.length >= 2 && parties.some((p) => !p.name) && (
+        <Notice>이름 없는 모임은 만든 날짜로 보여요. 모임을 열면 이름을 붙일 수 있어요.</Notice>
+      )}
+
       {!loading && parties.length === 0 && (
-        <Notice>아직 만든 모임이 없어요. 위에서 하나 만들어 단톡방에 던져보세요.</Notice>
+        <Notice>아직 만든 모임이 없어요. 하나 만들어서 단톡방에 던져보세요.</Notice>
       )}
     </div>
   )
@@ -407,7 +430,7 @@ function LocalParty({
         <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
       )}
 
-      {members.length >= 2 ? <Balance members={members} /> : <Notice>2명부터 모임 궁합이 나와요!</Notice>}
+      <Compat members={members} />
 
       {members.length > 0 && (
         <>
