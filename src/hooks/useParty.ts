@@ -10,6 +10,42 @@ function toMember(r: PartyMemberRow): (Member & { rowId: string; addedBy: string
 
 export type PartyMember = NonNullable<ReturnType<typeof toMember>>
 
+// ─────────────────────────────────────────────────────────────
+// 이 기기에서 내가 넣은 참여 기록
+// 링크로 그냥 들어간 사람은 서버에 흔적이 안 남는다. 나중에 로그인할 때
+// 이 기록으로 자기 행을 찾아 이름표를 붙이고, 그 모임이 내 목록에 뜬다.
+// ─────────────────────────────────────────────────────────────
+
+const JOINED_KEY = 'oneulun.joined'
+
+type Joined = { party: string; row: string }
+
+function readJoined(): Joined[] {
+  try {
+    const list = JSON.parse(localStorage.getItem(JOINED_KEY) ?? '[]')
+    return Array.isArray(list) ? list : []
+  } catch {
+    return [] // 손상된 값은 없는 셈 친다. 참여 기록 하나 잃는 것보다 앱이 죽는 게 나쁘다.
+  }
+}
+
+function rememberJoined(party: string, row: string) {
+  const list = readJoined()
+  if (list.some((j) => j.row === row)) return
+  localStorage.setItem(JOINED_KEY, JSON.stringify([...list, { party, row }]))
+}
+
+/** 로그인한 순간, 이 기기에서 넣었던 익명 행들을 내 것으로 가져온다. */
+async function claimJoined(userId: string) {
+  const rows = readJoined().map((j) => j.row)
+  if (!supabase || rows.length === 0) return
+  try {
+    await supabase.from('party_members').update({ added_by: userId }).in('id', rows).is('added_by', null)
+  } catch (e) {
+    toKoreanError(e, '') // 실패해도 로컬 기록으로 목록은 뜬다. 조용히 넘어간다.
+  }
+}
+
 /**
  * 링크로 연 모임 하나. 서버가 진실이고 화면은 구독으로 따라간다.
  * partyId가 null이면 아무것도 안 한다.
@@ -66,13 +102,18 @@ export function useParty(partyId: string | null, userId: string | null) {
   const add = async (m: Member) => {
     if (!supabase || !partyId) return
     try {
-      const { error } = await supabase.from('party_members').insert({
-        party_id: partyId,
-        name: m.name,
-        birth: encodeBirth(m.birth),
-        added_by: userId,
-      })
+      const { data, error } = await supabase
+        .from('party_members')
+        .insert({
+          party_id: partyId,
+          name: m.name,
+          birth: encodeBirth(m.birth),
+          added_by: userId,
+        })
+        .select('id')
+        .single()
       if (error) throw error
+      if (data) rememberJoined(partyId, data.id)
       await reload()
     } catch (e) {
       alert(toKoreanError(e, '추가하지 못했어요.'))
@@ -107,9 +148,18 @@ export function useParty(partyId: string | null, userId: string | null) {
   return { party, members, loading, error, isOwner, add, remove, rename }
 }
 
-/** 로그인한 사람이 만든 모임 목록. */
+export type MyParty = PartyRow & { count: number; mine: boolean }
+
+const withCount = (rows: unknown[], mine: boolean): MyParty[] =>
+  rows.map((p) => ({
+    ...(p as PartyRow),
+    count: (p as { party_members?: { count: number }[] }).party_members?.[0]?.count ?? 0,
+    mine,
+  }))
+
+/** 내가 만든 모임 + 내가 들어간 모임. */
 export function useMyParties(userId: string | null) {
-  const [parties, setParties] = useState<(PartyRow & { count: number })[]>([])
+  const [parties, setParties] = useState<MyParty[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -119,18 +169,37 @@ export function useMyParties(userId: string | null) {
       return
     }
     setLoading(true)
+    const db = supabase
     try {
-      const { data, error } = await supabase
-        .from('parties')
-        .select('*, party_members(count)')
-        .eq('owner_id', userId)
-        .order('created_at', { ascending: false })
-      if (error) throw error
+      // 로그인한 채로 목록을 여는 지금이, 예전에 그냥 참여했던 행에 이름표를 붙일 때다.
+      await claimJoined(userId)
+
+      const [owned, joinedRows] = await Promise.all([
+        db.from('parties').select('*, party_members(count)').eq('owner_id', userId),
+        db.from('party_members').select('party_id').eq('added_by', userId),
+      ])
+      if (owned.error) throw owned.error
+      if (joinedRows.error) throw joinedRows.error
+
+      const mine = withCount(owned.data ?? [], true)
+      const mineIds = new Set(mine.map((p) => p.id))
+      // 서버에 붙은 참여 기록과 이 기기 기록을 합친다. 내가 만든 모임은 빼고.
+      const joinedIds = [
+        ...new Set([
+          ...((joinedRows.data ?? []) as { party_id: string }[]).map((r) => r.party_id),
+          ...readJoined().map((j) => j.party),
+        ]),
+      ].filter((id) => !mineIds.has(id))
+
+      const joined = joinedIds.length
+        ? await db.from('parties').select('*, party_members(count)').in('id', joinedIds)
+        : null
+      if (joined?.error) throw joined.error
+
       setParties(
-        (data ?? []).map((p) => ({
-          ...(p as PartyRow),
-          count: (p as { party_members?: { count: number }[] }).party_members?.[0]?.count ?? 0,
-        })),
+        [...mine, ...withCount(joined?.data ?? [], false)].sort((a, b) =>
+          b.created_at.localeCompare(a.created_at),
+        ),
       )
       setError(null)
     } catch (e) {

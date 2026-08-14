@@ -72,6 +72,14 @@ create policy "참여는 로그인 없이도" on party_members
     exists (select 1 from parties p where p.id = party_id)
   );
 
+-- 링크로 그냥 참여한 사람은 added_by가 null이라 어느 모임에 들어갔는지 서버가 모른다.
+-- 나중에 로그인하면 그때 자기가 넣은 행에 이름표를 붙여, 내 모임 목록에 그 모임이 뜨게 한다.
+-- 아직 주인 없는 행만, 자기 id로만 바꿀 수 있다. 행 id를 아는 쪽 = 그 링크를 가진 쪽이다.
+drop policy if exists "익명 참여는 나중에 본인이 가져간다" on party_members;
+create policy "익명 참여는 나중에 본인이 가져간다" on party_members
+  for update to authenticated
+  using (added_by is null) with check (added_by = auth.uid());
+
 -- 지우기는 모임 주인이거나, 로그인 상태로 본인이 넣은 것.
 -- 비로그인 참여자는 added_by가 null이라 스스로 못 지운다. 오타 나면 주인한테 부탁해야 한다.
 drop policy if exists "삭제는 주인이나 본인만" on party_members;
@@ -125,7 +133,7 @@ grant select                         on parties       to anon;
 grant select, insert, update, delete on parties       to authenticated;
 
 grant select, insert                 on party_members to anon;
-grant select, insert, delete         on party_members to authenticated;
+grant select, insert, update, delete on party_members to authenticated;
 
 -- 삭제는 auth.uid()를 요구하므로 anon에게는 줄 이유가 없다.
 grant select, insert, update, delete on profiles      to authenticated;

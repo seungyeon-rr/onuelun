@@ -463,19 +463,26 @@ function MyParties({
                 key={p.id}
                 className="flex items-center gap-2.5 border-b border-ink/[0.06] py-2.5 last:border-0"
               >
-                <button onClick={() => onOpen(p.id)} className="flex-1 truncate text-left">
+                <button onClick={() => onOpen(p.id)} className="min-w-0 flex-1 truncate text-left">
                   <span className="font-display">{partyLabel(p)}</span>
                   <span className="ml-2 text-[14px] text-ink-faint">{p.count}명</span>
                 </button>
-                <button
-                  onClick={() => {
-                    if (confirm(`"${partyLabel(p)}"을 삭제할까요? 링크도 안 열려요.`)) remove(p.id)
-                  }}
-                  aria-label={`${partyLabel(p)} 삭제`}
-                  className="px-1 text-[14px] leading-none text-ink-faint"
-                >
-                  ×
-                </button>
+                {/* 남이 만든 모임은 내가 못 지운다. 지우는 버튼도 보이면 안 된다. */}
+                {p.mine ? (
+                  <button
+                    onClick={() => {
+                      if (confirm(`"${partyLabel(p)}"을 삭제할까요? 링크도 안 열려요.`)) remove(p.id)
+                    }}
+                    aria-label={`${partyLabel(p)} 삭제`}
+                    className="px-1 text-[14px] leading-none text-ink-faint"
+                  >
+                    ×
+                  </button>
+                ) : (
+                  <span className="shrink-0 border-2 border-ink/20 px-1.5 py-0.5 text-[12px] text-ink-faint">
+                    참여
+                  </span>
+                )}
               </li>
             ))}
           </ul>
@@ -488,7 +495,7 @@ function MyParties({
       )}
 
       {!loading && parties.length === 0 && (
-        <Notice>아직 만든 모임이 없어요. 하나 만들어서 단톡방에 던져보세요.</Notice>
+        <Notice>아직 모임이 없어요. 하나 만들거나, 친구가 보낸 링크로 들어가면 여기 쌓여요.</Notice>
       )}
     </div>
   )
