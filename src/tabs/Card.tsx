@@ -5,6 +5,10 @@ import {
 import { AXES, GAN_META, ELEMENT_META, RARITY, rarityRank } from '../data'
 import { Panel, Label, ShareButton, Cat, PRESS } from '../ui'
 import { saveCardImage } from '../cardImage'
+import { mbtiOdds, mbtiSides } from '../mbti'
+
+/** 이 차이보다 벌어져야 축이 한쪽으로 정해진 걸로 본다 (60% 대 40%) */
+const CLEAR = 0.2
 
 const ganName = (g: Gan) => `${GAN_KO[g]}${ELEMENT_KO[elementOfGan(g)]}(${g})`
 
@@ -24,6 +28,8 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
   const max = Math.max(1, ...scores.map((s) => s.score))
   const top = scores.reduce((a, b) => (b.score > a.score ? b : a))
   const bottom = scores.reduce((a, b) => (b.score < a.score ? b : a))
+  const odds = mbtiOdds(saju).slice(0, 3)
+  const sides = mbtiSides(saju)
   const totalElements = Object.values(saju.elements).reduce((a, b) => a + b, 0)
   // 가장 많은 오행 하나와 아예 없는 오행들만 짚어준다. 다섯 개 다 설명하면 아무도 안 읽는다.
   const mostEl = ELEMENTS.reduce((a, b) => (saju.elements[b] > saju.elements[a] ? b : a))
@@ -123,6 +129,50 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         <p className="mt-4 border-t border-ink/[0.08] pt-3.5 text-[13px] leading-relaxed text-ink-soft">
           <b className="font-display text-seal">{top.key}</b>이 제일 높고{' '}
           <b className="font-display">{bottom.key}</b>이 제일 낮아요. {bottom.low}
+        </p>
+      </Panel>
+
+      <Panel delay={110}>
+        <Label>MBTI 추측 TOP 3</Label>
+        <ul className="mt-1 flex flex-col gap-2.5">
+          {odds.map((o, i) => (
+            <li key={o.type} className="flex items-center gap-2.5">
+              <span className="w-14 shrink-0 font-display text-[16px] tracking-tight">{o.type}</span>
+              <div className="h-3.5 flex-1 overflow-hidden border-[3px] border-ink bg-hanji">
+                <div
+                  className="h-full"
+                  style={{
+                    width: `${(o.p / odds[0].p) * 100}%`,
+                    animationDelay: `${170 + i * 70}ms`,
+                    background: i === 0 ? 'var(--color-seal)' : 'var(--color-ink)',
+                  }}
+                />
+              </div>
+              <span className="w-10 shrink-0 text-right font-display text-[14px] text-ink-faint">
+                {Math.round(o.p * 100)}%
+              </span>
+            </li>
+          ))}
+        </ul>
+        {/* TOP 3는 확신이 센 축의 글자가 세 줄 다 같다. 어디가 애매한지는 축을 봐야 안다. */}
+        <div className="mt-4 flex justify-between gap-2 border-t border-ink/[0.08] pt-3.5">
+          {sides.map((two) => {
+            const win = two[0].p >= two[1].p ? two[0] : two[1]
+            const sure = Math.abs(two[0].p - two[1].p) > CLEAR
+            return (
+              <div key={win.letter} className="flex-1 text-center">
+                <p className={`font-display text-[17px] ${sure ? 'text-ink' : 'text-ink-faint'}`}>
+                  {win.letter}
+                </p>
+                <p className="mt-0.5 text-[12px] text-ink-faint">{Math.round(win.p * 100)}%</p>
+              </div>
+            )
+          })}
+        </div>
+        <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
+          60%에 못 미치는 축은 흐리게 뒀어요. 그 축은 사주만으론 어느 쪽인지 못 가립니다.
+          <br />
+          검사 결과랑 다르면 검사 쪽이 맞습니다.
         </p>
       </Panel>
 
