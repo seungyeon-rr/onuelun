@@ -66,6 +66,15 @@ export default function App() {
     if (myBirth) localStorage.setItem(STORAGE_KEY, encodeBirth(myBirth))
   }, [myBirth])
 
+  // 보던 탭을 URL에 남겨야 새로고침해도 그 탭으로 돌아온다.
+  // (파티 링크의 p·party 파라미터가 URL에 남아 있으면 다른 탭이 파티로 튀던 문제)
+  useEffect(() => {
+    const p = readParams()
+    if (p.get('t') === tab) return
+    p.set('t', tab)
+    history.replaceState(null, '', `${location.pathname}?${p}`)
+  }, [tab])
+
   // 로그인하면 서버에 있는 생일이 이 기기를 덮는다. 폰↔PC 동기화의 전부.
   useBirthSync(userId, myBirth ? encodeBirth(myBirth) : null, (b) => {
     const parsed = decodeBirth(b)

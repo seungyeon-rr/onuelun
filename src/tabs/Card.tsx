@@ -3,7 +3,8 @@ import {
   ELEMENTS, ELEMENT_KO, GAN_KO, type Birth, type Gan,
 } from '../saju'
 import { AXES, GAN_META, ELEMENT_META } from '../data'
-import { Panel, Label, ShareButton, Cat } from '../ui'
+import { Panel, Label, ShareButton, Cat, PRESS } from '../ui'
+import { saveCardImage } from '../cardImage'
 
 const ganName = (g: Gan) => `${GAN_KO[g]}${ELEMENT_KO[elementOfGan(g)]}(${g})`
 
@@ -29,6 +30,15 @@ export default function Card({ birth }: { birth: Birth }) {
   const noneEls = ELEMENTS.filter((e) => saju.elements[e] === 0)
 
   const shareUrl = `${location.origin}${location.pathname}?t=card&b=${encodeBirth(birth)}`
+
+  const art = {
+    el: saju.dayElement,
+    type: `${grade} ${ganName(saju.dayGan)}`,
+    character: me.character,
+    traits: me.traits,
+    best: { label: ganName(best), character: GAN_META[best].character },
+    worst: { label: ganName(worst), character: GAN_META[worst].character },
+  }
 
   return (
     <div className="flex flex-col gap-2.5">
@@ -158,10 +168,19 @@ export default function Card({ birth }: { birth: Birth }) {
         )}
       </Panel>
 
-      <ShareButton
-        url={shareUrl}
-        text={`내 운세 유형은 ${grade} ${ganName(saju.dayGan)} "${me.character}"래`}
-      />
+      <div className="flex flex-col gap-2.5">
+        <button
+          onClick={() => saveCardImage(art, '오늘운-내카드.jpg')}
+          className={`w-full border-[3px] border-ink bg-card py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
+        >
+          이미지로 저장하기
+        </button>
+        <ShareButton
+          url={shareUrl}
+          text={`내 운세 유형은 ${grade} ${ganName(saju.dayGan)} "${me.character}"래`}
+          label="링크로 보내기"
+        />
+      </div>
     </div>
   )
 }
