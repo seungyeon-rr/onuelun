@@ -25,6 +25,43 @@ const fmtBirth = (b: Birth) =>
 // 공용 조각
 // ─────────────────────────────────────────────────────────────
 
+type Read = { name: string; saju: ReturnType<typeof calcSaju> }
+
+/** 누구와 누구인지가 먼저 보여야 한다. 오행 고양이 둘을 ×로 마주 놓는다. */
+function ChemiRow({
+  pair,
+  kind,
+  color,
+}: {
+  pair: { a: Read; b: Read; tag: string; line: (a: string, b: string) => string }
+  kind: string
+  color: string
+}) {
+  return (
+    <li>
+      <div className="mb-2 flex items-center gap-2">
+        <span
+          className="border-[3px] border-ink px-2 py-0.5 font-display text-[13px] text-white"
+          style={{ background: color }}
+        >
+          {kind}
+        </span>
+        <span className="font-display text-[14px]" style={{ color }}>
+          {pair.tag}
+        </span>
+      </div>
+      <div className="mb-2 flex items-center gap-1.5">
+        <Cat el={pair.a.saju.dayElement} size={32} className="shrink-0" />
+        <span className="min-w-0 flex-1 truncate text-[14px]">{pair.a.name}</span>
+        <span className="shrink-0 font-display text-[13px] text-ink-faint">×</span>
+        <Cat el={pair.b.saju.dayElement} size={32} className="shrink-0" />
+        <span className="min-w-0 flex-1 truncate text-[14px]">{pair.b.name}</span>
+      </div>
+      <p className="text-[14px] leading-relaxed">{pair.line(pair.a.name, pair.b.name)}</p>
+    </li>
+  )
+}
+
 function Balance({ members }: { members: Member[] }) {
   const read = members.map((m) => ({ name: m.name, saju: calcSaju(m.birth) }))
 
@@ -43,8 +80,8 @@ function Balance({ members }: { members: Member[] }) {
     read
       .filter((_, j) => j !== i)
       .map((b) => ({
-        a: a.name,
-        b: b.name,
+        a,
+        b,
         ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)],
       })),
   )
@@ -79,21 +116,11 @@ function Balance({ members }: { members: Member[] }) {
 
       <Panel delay={150}>
         <Label>케미 리포트</Label>
-        <ul className="flex flex-col gap-3">
-          <li className="text-[14px] leading-relaxed">
-            <b className="font-display text-seal">찰떡 · {best.tag}</b>
-            <br />
-            {best.line(best.a, best.b)}
-          </li>
+        <ul className="flex flex-col gap-4">
+          <ChemiRow pair={best} kind="찰떡" color="var(--color-seal)" />
           {/* 2명이면 방향만 다른 같은 쌍이라 한 줄로 끝난다. */}
           {spark !== best && (
-            <li className="text-[14px] leading-relaxed">
-              <b className="font-display" style={{ color: ELEMENT_META['火'].color }}>
-                불꽃 · {spark.tag}
-              </b>
-              <br />
-              {spark.line(spark.a, spark.b)}
-            </li>
+            <ChemiRow pair={spark} kind="불꽃" color={ELEMENT_META['火'].color} />
           )}
         </ul>
       </Panel>
