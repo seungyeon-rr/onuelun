@@ -7,6 +7,24 @@
     <meta name="theme-color" content="#FFF3E6" />
     <title>오늘운 · 오늘의 운세</title>
     <meta name="description" content="오늘의 기운, 내 캐릭터, 모임 궁합까지 — 사주로 보는 가벼운 운세 앱" />
+
+    <!--
+      단톡방에 링크만 덩그러니 뜨면 아무도 안 누른다. 미리보기 카드가 곧 유입이다.
+      카카오는 SVG를 안 읽어서 og:image는 PNG로 둔다. 절대 URL이어야 크롤러가 받아간다.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="오늘운" />
+    <meta property="og:title" content="오늘운 · 우리 모임 궁합 보기" />
+    <meta
+      property="og:description"
+      content="생일만 넣으면 끝. 누가 총대고 누가 뒷정리 담당인지, 어떤 둘이 붙으면 지갑이 열리는지 나옵니다."
+    />
+    <meta property="og:url" content="https://oneulun.vercel.app/" />
+    <meta property="og:image" content="https://oneulun.vercel.app/og.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
     <link
       rel="stylesheet"
