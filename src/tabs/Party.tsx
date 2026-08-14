@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   calcSaju, encodeBirth, encodeParty, ELEMENTS, ELEMENT_KO, shishenOf,
-  HOUR_UNKNOWN, type Birth, type Element, type Member,
+  HOUR_UNKNOWN, type Birth, type Element, type Member, type ShiShen,
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PAIR_CHEMI, PARTY_ROLE, PARTY_TYPE } from '../data'
 import { Panel, Label, BirthField, ShareButton, Cat } from '../ui'
@@ -23,17 +23,73 @@ const fmtBirth = (b: Birth) =>
 
 
 type Read = { name: string; saju: ReturnType<typeof calcSaju> }
+type Pair = { i: number; j: number; a: Read; b: Read } & (typeof PAIR_CHEMI)[ShiShen]
+
+/** 이미 두 자리 다 찬 조합은 건너뛴다. 같은 사람만 계속 나오면 리포트가 심심해진다. */
+function greedy(ranked: Pair[], take: number) {
+  const used = new Set<number>()
+  const out: Pair[] = []
+  for (const p of ranked) {
+    if (out.length >= take) break
+    if (used.has(p.i) && used.has(p.j)) continue
+    used.add(p.i)
+    used.add(p.j)
+    out.push(p)
+  }
+  return out
+}
+
+/**
+ * 잘 맞는 쪽 위에서 몇 개, 안 맞는 쪽 아래에서 몇 개.
+ * A가 B를 보는 십신과 B가 A를 보는 십신이 달라서 방향까지 다 훑되, 같은 두 사람은 한 번만 쓴다.
+ * ponytail: 30명이어도 870쌍이라 전수로 돈다. 더 커지면 그때 자르면 된다.
+ */
+export function pickChemi(read: Read[], take = 3) {
+  const seen = new Set<string>()
+  const ranked = read
+    .flatMap((a, i) =>
+      read.map((b, j) => ({ i, j, a, b, ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)] })),
+    )
+    .filter((p) => p.i !== p.j)
+    .sort((x, y) => y.score - x.score)
+    .filter((p) => {
+      const key = `${Math.min(p.i, p.j)}-${Math.max(p.i, p.j)}`
+      if (seen.has(key)) return false
+      seen.add(key)
+      return true
+    })
+
+  const good = greedy(ranked, take)
+  const rest = ranked.filter((p) => !good.includes(p))
+  return { good, bad: greedy(rest.reverse(), take) }
+}
+
+/**
+ * 역할은 모임 안에서 안 겹치게 준다. 일간이 같아도 신강/신약이 다르면 다른 역할이 먼저 잡힌다.
+ * ponytail: 20종을 다 쓰면 그때부터는 겹친다. 30명 상한이라 최악이 열 명 중복이다.
+ */
+export function assignRoles(read: Read[]) {
+  const used = new Set<string>()
+  return read.map(({ saju }) => {
+    const card = PARTY_ROLE[saju.dayGan]
+    const [first, second] = saju.strong ? [card.strong, card.weak] : [card.weak, card.strong]
+    const pick = used.has(first.role) && !used.has(second.role) ? second : first
+    used.add(pick.role)
+    return pick
+  })
+}
+
+/** 점수를 사람 말로. 색까지 같이 준다. */
+function grade(score: number) {
+  if (score >= 8) return { kind: '찰떡', color: 'var(--color-seal)' }
+  if (score >= 6) return { kind: '무난', color: ELEMENT_META['木'].color }
+  if (score >= 4) return { kind: '삐걱', color: ELEMENT_META['土'].color }
+  return { kind: '불꽃', color: ELEMENT_META['火'].color }
+}
 
 /** 누구와 누구인지가 먼저 보여야 한다. 오행 고양이 둘을 ×로 마주 놓는다. */
-function ChemiRow({
-  pair,
-  kind,
-  color,
-}: {
-  pair: { a: Read; b: Read; tag: string; line: (a: string, b: string) => string }
-  kind: string
-  color: string
-}) {
+function ChemiRow({ pair }: { pair: Pair }) {
+  const { kind, color } = grade(pair.score)
   return (
     <li>
       <div className="mb-2 flex items-center gap-2">
@@ -71,19 +127,8 @@ function Balance({ members }: { members: Member[] }) {
   const dominant = ELEMENTS.filter((e) => sum > 0 && totals[e] / sum >= DOMINANT)
   const partyType = dominant[0] ? PARTY_TYPE[dominant[0]] : BALANCED_TYPE
 
-  // A가 B를 보는 십신과 B가 A를 보는 십신은 다르다. 방향까지 다 훑고 양 끝만 뽑는다.
-  // ponytail: 30명이어도 870쌍이라 전수로 돈다. 더 커지면 그때 자르면 된다.
-  const pairs = read.flatMap((a, i) =>
-    read
-      .filter((_, j) => j !== i)
-      .map((b) => ({
-        a,
-        b,
-        ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)],
-      })),
-  )
-  const best = pairs.reduce((x, y) => (y.score > x.score ? y : x))
-  const spark = pairs.reduce((x, y) => (y.score < x.score ? y : x))
+  const { good, bad } = pickChemi(read)
+  const roles = assignRoles(read)
 
   return (
     <>
@@ -114,29 +159,24 @@ function Balance({ members }: { members: Member[] }) {
       <Panel delay={150}>
         <Label>케미 리포트</Label>
         <ul className="flex flex-col gap-4">
-          <ChemiRow pair={best} kind="찰떡" color="var(--color-seal)" />
-          {/* 2명이면 방향만 다른 같은 쌍이라 한 줄로 끝난다. */}
-          {spark !== best && (
-            <ChemiRow pair={spark} kind="불꽃" color={ELEMENT_META['火'].color} />
-          )}
+          {[...good, ...bad].map((p) => (
+            <ChemiRow key={`${p.i}-${p.j}`} pair={p} />
+          ))}
         </ul>
       </Panel>
 
       <Panel delay={180}>
         <Label>역할 배정</Label>
         <ul className="flex flex-col gap-2.5">
-          {read.map(({ name, saju }, i) => {
-            const { role, line } = PARTY_ROLE[saju.dayGan]
-            return (
-              <li key={i} className="text-[14px] leading-relaxed">
-                <b className="font-display">
-                  {name} — {role}
-                </b>
-                <br />
-                <span className="text-ink-soft">{line}</span>
-              </li>
-            )
-          })}
+          {roles.map(({ role, line }, i) => (
+            <li key={i} className="text-[14px] leading-relaxed">
+              <b className="font-display">
+                {read[i].name} — {role}
+              </b>
+              <br />
+              <span className="text-ink-soft">{line}</span>
+            </li>
+          ))}
         </ul>
       </Panel>
 
