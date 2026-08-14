@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcSaju, type Birth } from './saju'
-import { assignRoles, pickChemi } from './tabs/Party'
+import { assignRoles, pickChemi } from './party'
 
 const read = (list: [string, Birth][]) =>
   list.map(([name, birth]) => ({ name, saju: calcSaju(birth) }))
