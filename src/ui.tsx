@@ -45,6 +45,10 @@ export function Cat({
   )
 }
 
+/** 도트 UI의 눌림. 그림자만큼 밀어 넣어야 실제로 내려앉은 것처럼 보인다. */
+export const PRESS =
+  'transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none'
+
 export function Seal({ char, className = '' }: { char: string; className?: string }) {
   return (
     <span
@@ -158,7 +162,7 @@ export function ShareButton({
           // 사용자가 공유 시트를 닫은 경우 — 알릴 것 없다
         }
       }}
-      className="w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+      className={`w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
     >
       {label}
     </button>

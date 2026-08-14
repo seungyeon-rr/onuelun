@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { decodeBirth, decodeParty, encodeBirth, encodeParty, type Birth, type Member } from './saju'
-import { BirthField, Cat, Panel } from './ui'
+import { BirthField, Cat, Panel, PRESS } from './ui'
 import { useAuth } from './hooks/useAuth'
 import { pushBirth, useBirthSync } from './hooks/useParty'
 import Daily from './tabs/Daily'
@@ -96,7 +96,7 @@ export default function App() {
               setDraft(birth)
               setEditing(true)
             }}
-            className="border-[3px] border-ink bg-card px-2.5 py-1.5 text-[14px] text-ink transition active:translate-x-[2px] active:translate-y-[2px]"
+            className={`border-[3px] border-ink bg-card px-2.5 py-1.5 text-[14px] text-ink shadow-[3px_3px_0_var(--color-ink)] ${PRESS}`}
           >
             생일 변경
           </button>
@@ -128,14 +128,14 @@ export default function App() {
             <button
               onClick={saveDraft}
               disabled={!draft}
-              className="mt-4 w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-30"
+              className={`mt-4 w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] ${PRESS} disabled:opacity-30`}
             >
               오늘 운세 보기
             </button>
             {editing && (
               <button
                 onClick={() => setEditing(false)}
-                className="mt-2 w-full py-2 text-[14px] text-ink-faint"
+                className="mt-2 min-h-11 w-full text-[14px] text-ink-faint"
               >
                 취소
               </button>
@@ -167,11 +167,12 @@ export default function App() {
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              aria-current={tab === t.key}
-              className={`flex flex-1 items-center justify-center py-2.5 transition ${
+              aria-current={tab === t.key ? 'page' : undefined}
+              className={`flex flex-1 items-center justify-center border-[3px] border-ink py-2.5 ${
                 tab === t.key
-                  ? 'bg-seal text-white shadow-none'
-                  : 'bg-card text-ink-soft shadow-[3px_3px_0_var(--color-ink)]'
+                  // 고른 탭은 그림자만 지우지 말고 그 자리로 내려앉혀야 눌린 걸로 보인다.
+                  ? 'translate-x-[3px] translate-y-[3px] bg-seal text-white shadow-none'
+                  : `bg-card text-ink-soft shadow-[3px_3px_0_var(--color-ink)] ${PRESS}`
               }`}
             >
               <span className="font-display text-[15px] leading-none">{t.label}</span>

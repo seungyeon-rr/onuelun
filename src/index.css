@@ -85,6 +85,12 @@ svg {
   }
 }
 
+/* 탭 하이라이트를 껐기 때문에 키보드로 도는 사람에게는 이 테두리가 유일한 단서다. */
+:focus-visible {
+  outline: 3px solid var(--color-seal);
+  outline-offset: 2px;
+}
+
 /* iOS는 16px 미만 입력에 포커스하면 화면을 확대한다. 여기만 16px 고정. */
 input,
 select,

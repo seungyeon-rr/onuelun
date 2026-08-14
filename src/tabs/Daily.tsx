@@ -84,7 +84,7 @@ export default function Daily({ birth }: { birth: Birth }) {
 
       <Panel delay={200}>
         <Label>앞으로 7일</Label>
-        <div className="flex items-end gap-1.5">
+        <div className="flex items-end gap-1.5" aria-hidden>
           {week.map((w) => (
             <div key={+w.d} className="flex flex-1 flex-col items-center gap-1.5">
               <div className="flex h-12 w-full items-end">

@@ -5,7 +5,7 @@ import {
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
 import { assignRoles, pickChemi, type Pair } from '../party'
-import { Panel, Label, BirthField, ShareButton, Cat } from '../ui'
+import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
 
@@ -237,7 +237,7 @@ function AddMember({
           {canAddMe && myBirth && (
             <button
               onClick={() => onAdd({ name: myName, birth: myBirth })}
-              className="shrink-0 border-[3px] border-ink bg-card px-4 py-3 font-display text-ink shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+              className={`shrink-0 border-[3px] border-ink bg-card px-4 py-3 font-display text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
             >
               + 나
             </button>
@@ -250,7 +250,7 @@ function AddMember({
               setBirth(null)
             }}
             disabled={!birth || !name.trim()}
-            className="flex-1 border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none disabled:opacity-30"
+            className={`flex-1 border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] ${PRESS} disabled:opacity-30`}
           >
             추가하기
           </button>
@@ -303,7 +303,7 @@ function Room({
     return (
       <div className="flex flex-col gap-2.5">
         <Notice>{error ?? '없는 모임이에요.'}</Notice>
-        <button onClick={onLeave} className="py-2 text-[14px] text-ink-faint underline">
+        <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
           내 모임 목록으로
         </button>
       </div>
@@ -373,7 +373,7 @@ function Room({
         <br />
         누가 들어오면 새로고침 없이 바로 뜹니다.
       </p>
-      <button onClick={onLeave} className="py-2 text-[14px] text-ink-faint underline">
+      <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
         내 모임 목록으로
       </button>
     </div>
@@ -418,7 +418,7 @@ function MyParties({
             const id = await create(newPartyId(), myBirth ? { name: myName, birth: myBirth } : null)
             if (id) onOpen(id)
           }}
-          className="w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+          className={`w-full border-[3px] border-ink bg-seal py-3 font-display text-white shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
         >
           새 모임 만들고 링크 받기
         </button>
@@ -615,7 +615,7 @@ export default function Party({
           </p>
           <button
             onClick={signIn}
-            className="mt-5 w-full border-[3px] border-ink bg-[#FEE500] py-3 font-display text-[#191600] shadow-[4px_4px_0_var(--color-ink)] transition active:translate-x-[3px] active:translate-y-[3px] active:shadow-none"
+            className={`mt-5 w-full border-[3px] border-ink bg-[#FEE500] py-3 font-display text-[#191600] shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
           >
             카카오로 시작하기
           </button>
@@ -633,7 +633,7 @@ export default function Party({
         setMyName={setMyName}
         onOpen={goRoom}
       />
-      <button onClick={signOut} className="py-2 text-[14px] text-ink-faint underline">
+      <button onClick={signOut} className="min-h-11 text-[14px] text-ink-faint underline">
         로그아웃
       </button>
     </div>
