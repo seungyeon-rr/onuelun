@@ -34,11 +34,11 @@ export default function Card({ birth }: { birth: Birth }) {
     <div className="flex flex-col gap-2.5">
       <Panel className="text-center">
         <p className="text-[12px] font-semibold text-ink-faint">내 유형</p>
-        <p className="mt-2 font-display text-[26px] tracking-tight">
+        <p className="mt-2 font-display text-[22px] tracking-tight">
           <span className="text-[17px] text-ink-faint">{grade}</span> {ganName(saju.dayGan)}
         </p>
         <Cat el={saju.dayElement} size={112} className="animate-float mx-auto mt-2" />
-        <h2 className="mt-1 font-display text-[22px] leading-snug text-seal">{me.character}</h2>
+        <h2 className="mt-1 font-display text-[19px] leading-snug text-seal">{me.character}</h2>
         <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">{me.traits}</p>
         <p className="mt-3 border-t border-ink/[0.08] pt-3 text-[13px] leading-relaxed text-ink-soft">
           {saju.strong ? me.strong : me.weak}

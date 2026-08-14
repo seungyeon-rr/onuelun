@@ -40,7 +40,7 @@ export default function Daily({ birth }: { birth: Birth }) {
           {today.getMonth() + 1}월 {today.getDate()}일 {WEEKDAY[today.getDay()]}요일
         </p>
         <p className="mt-5 text-[14px] text-ink-soft">오늘 나에게 들어온 기운</p>
-        <h2 className="mt-2 font-display text-[32px] leading-none tracking-tight">
+        <h2 className="mt-2 font-display text-[26px] leading-none tracking-tight">
           {SHISHEN_KO[shishen]}
           <span className="ml-2 text-[15px] text-ink-faint">
             {shishen}({f.key})
@@ -65,7 +65,7 @@ export default function Daily({ birth }: { birth: Birth }) {
           <div key={label} className="py-3.5 first:pt-0 last:pb-0">
             <div className="flex items-baseline justify-between gap-3">
               <span className="shrink-0 font-display text-[13px] text-ink-faint">{label}</span>
-              <span className="text-right font-display text-[19px] leading-tight">{tip.what}</span>
+              <span className="text-right font-display text-[17px] leading-tight">{tip.what}</span>
             </div>
             <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{tip.why}</p>
           </div>
@@ -75,7 +75,7 @@ export default function Daily({ birth }: { birth: Birth }) {
       <Panel delay={140} className="bg-seal/[0.07]">
         <div className="flex items-baseline justify-between gap-3">
           <span className="shrink-0 font-display text-[13px] text-seal/70">오늘 하지 말 것</span>
-          <span className="text-right font-display text-[19px] leading-tight text-seal">
+          <span className="text-right font-display text-[17px] leading-tight text-seal">
             {avoid.what}
           </span>
         </div>
