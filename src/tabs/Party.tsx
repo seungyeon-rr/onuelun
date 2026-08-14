@@ -4,7 +4,7 @@ import {
   HOUR_UNKNOWN, type Birth, type Element, type Member,
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
-import { assignRoles, pickChemi, type Pair } from '../party'
+import { assignRoles, pickChemi, type Pair, type Read } from '../party'
 import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
@@ -29,6 +29,112 @@ function grade(score: number) {
   if (score >= 6) return { kind: '무난', color: ELEMENT_META['木'].color }
   if (score >= 4) return { kind: '삐걱', color: ELEMENT_META['土'].color }
   return { kind: '불꽃', color: ELEMENT_META['火'].color }
+}
+
+/**
+ * 오행 관계도. ELEMENTS 순서(木火土金水)가 그대로 상생 순서라, 시계방향으로 놓으면
+ * 이웃이 상생이고 두 칸 건너가 상극이 된다. 선 목록을 따로 적을 필요가 없다.
+ * 양쪽에 사람이 다 있는 선만 진하게 그린다. 우리 모임에서 실제로 도는 관계만 보이게.
+ */
+function Wuxing({ read }: { read: Read[] }) {
+  const count = Object.fromEntries(ELEMENTS.map((e) => [e, 0])) as Record<Element, number>
+  for (const { saju } of read) count[saju.dayElement]++
+
+  const at = ELEMENTS.map((_, i) => {
+    const rad = ((i * 72 - 90) * Math.PI) / 180
+    return [50 + 36 * Math.cos(rad), 50 + 36 * Math.sin(rad)] as const
+  })
+
+  // 선을 원 중심까지 그리면 화살촉이 원 밑에 깔려 방향이 안 보인다. 양 끝을 잘라낸다.
+  const edges = ELEMENTS.flatMap((_, i) =>
+    [1, 2].map((step) => {
+      const j = (i + step) % 5
+      const [x1, y1] = at[i]
+      const [x2, y2] = at[j]
+      const len = Math.hypot(x2 - x1, y2 - y1)
+      const [ux, uy] = [((x2 - x1) / len) * 13, ((y2 - y1) / len) * 13]
+      return {
+        key: `${i}-${j}`,
+        born: step === 1,
+        on: count[ELEMENTS[i]] > 0 && count[ELEMENTS[j]] > 0,
+        x1: x1 + ux, y1: y1 + uy, x2: x2 - ux, y2: y2 - uy,
+      }
+    }),
+  )
+  const live = {
+    born: edges.filter((e) => e.on && e.born).length,
+    kill: edges.filter((e) => e.on && !e.born).length,
+  }
+
+  const head = (id: string, color: string) => (
+    <marker id={id} markerWidth="4" markerHeight="4" refX="3" refY="2" orient="auto">
+      <path d="M0,0 L4,2 L0,4 z" fill={color} />
+    </marker>
+  )
+
+  return (
+    <div className="mb-4">
+      <svg viewBox="-13 -12 126 124" className="mx-auto block w-full max-w-[250px]" aria-hidden>
+        <defs>
+          {head('born', 'var(--color-ink-soft)')}
+          {head('kill', 'var(--color-seal)')}
+        </defs>
+
+        {edges.map((e) => (
+          <line
+            key={e.key}
+            x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2}
+            stroke={e.born ? 'var(--color-ink-soft)' : 'var(--color-seal)'}
+            strokeWidth={e.on ? 2 : 1.5}
+            strokeOpacity={e.on ? 1 : 0.15}
+            markerEnd={e.on ? `url(#${e.born ? 'born' : 'kill'})` : undefined}
+          />
+        ))}
+
+        {ELEMENTS.map((el, i) => {
+          const n = count[el]
+          return (
+            <g key={el}>
+              <circle
+                cx={at[i][0]} cy={at[i][1]} r="10"
+                fill={n ? ELEMENT_META[el].color : 'var(--color-card)'}
+                stroke="var(--color-ink)" strokeWidth="2.5"
+                opacity={n ? 1 : 0.4}
+              />
+              <text
+                x={at[i][0]} y={at[i][1]} textAnchor="middle" dominantBaseline="central"
+                className="font-display" fontSize="10"
+                fill={n ? 'var(--color-ink)' : 'var(--color-ink-faint)'}
+              >
+                {el}
+              </text>
+              {n > 0 && (
+                <text
+                  x={50 + (at[i][0] - 50) * 1.42} y={50 + (at[i][1] - 50) * 1.42}
+                  textAnchor="middle" dominantBaseline="central"
+                  fontSize="8" fill="var(--color-ink-soft)"
+                >
+                  {n}명
+                </text>
+              )}
+            </g>
+          )
+        })}
+      </svg>
+
+      <p className="mt-1 text-center text-[13px] leading-relaxed text-ink-soft">
+        <b className="font-display text-ink">밀어주는 사이 {live.born}줄</b>
+        <span className="text-ink-faint"> · </span>
+        <b className="font-display text-seal">조이는 사이 {live.kill}줄</b>
+        <br />
+        {live.kill === 0
+          ? '부딪히는 축이 없어요. 편한 대신 아무도 안 밀어붙입니다.'
+          : live.born === 0
+            ? '서로 조이기만 하는 판이에요. 일은 되는데 오래 못 갑니다.'
+            : '밀어주는 축과 조이는 축이 같이 있어요. 굴러가는 모임입니다.'}
+      </p>
+    </div>
+  )
 }
 
 /** 누구와 누구인지가 먼저 보여야 한다. 오행 고양이 둘을 ×로 마주 놓는다. */
@@ -102,7 +208,8 @@ function Balance({ members }: { members: Member[] }) {
 
       <Panel delay={150}>
         <Label>케미 리포트</Label>
-        <ul className="flex flex-col gap-4">
+        <Wuxing read={read} />
+        <ul className="flex flex-col gap-4 border-t border-ink/[0.08] pt-4">
           {[...good, ...bad].map((p) => (
             <ChemiRow key={`${p.i}-${p.j}`} pair={p} />
           ))}

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest'
 import { Solar } from 'lunar-javascript'
 import {
   calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
-  GANS, SHISHEN, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen,
+  GANS, SHISHEN, ELEMENTS, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen, elementOfGan,
 } from './saju'
 import { GAN_META, PAIR_CHEMI } from './data'
 
@@ -172,5 +172,23 @@ describe('앞으로 7일', () => {
 
   it('7일치 점수를 매길 십신에 빠진 게 없다', () => {
     for (const s of SHISHEN) expect(PAIR_CHEMI[s].score).toBeGreaterThan(0)
+  })
+})
+
+// 오행 관계도는 ELEMENTS 순서에 기대고 있다. 시계방향 이웃이 상생(내가 생하는 것 = 식상),
+// 두 칸 건너가 상극(내가 극하는 것 = 재성)이라는 전제가 깨지면 화살표가 통째로 거짓말이 된다.
+describe('오행 관계도', () => {
+  it('이웃은 상생, 두 칸 건너는 상극이다', () => {
+    for (const me of GANS) {
+      const i = ELEMENTS.indexOf(elementOfGan(me))
+      const born = ELEMENTS[(i + 1) % 5]
+      const killed = ELEMENTS[(i + 2) % 5]
+      for (const other of GANS) {
+        const s = shishenOf(me, other)
+        const el = elementOfGan(other)
+        if (el === born) expect(['食神', '傷官']).toContain(s)
+        if (el === killed) expect(['偏財', '正財']).toContain(s)
+      }
+    }
   })
 })
