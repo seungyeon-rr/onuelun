@@ -23,11 +23,11 @@ const fmtBirth = (b: Birth) =>
   `${b.y}.${pad(b.m)}.${pad(b.d)}` + (b.h === HOUR_UNKNOWN ? ' · 시 모름' : ` · ${pad(b.h)}시`)
 
 
-/** 점수를 사람 말로. 색까지 같이 준다. */
-function grade(score: number) {
-  if (score >= 8) return { kind: '찰떡', color: 'var(--color-seal)' }
-  if (score >= 6) return { kind: '무난', color: ELEMENT_META['木'].color }
-  if (score >= 4) return { kind: '삐걱', color: ELEMENT_META['土'].color }
+/** 100점 만점 점수를 사람 말로. 색까지 같이 준다. */
+function grade(percent: number) {
+  if (percent >= 85) return { kind: '찰떡', color: 'var(--color-seal)' }
+  if (percent >= 65) return { kind: '무난', color: ELEMENT_META['木'].color }
+  if (percent >= 45) return { kind: '삐걱', color: ELEMENT_META['土'].color }
   return { kind: '불꽃', color: ELEMENT_META['火'].color }
 }
 
@@ -125,15 +125,19 @@ function Wuxing({ read }: { read: Read[] }) {
       </svg>
 
       <p className="mt-1 text-center text-[13px] leading-relaxed text-ink-soft">
-        <b className="font-display text-ink">밀어주는 사이 {live.born}줄</b>
+        <b className="font-display text-ink">서로 챙기는 짝 {live.born}</b>
         <span className="text-ink-faint"> · </span>
-        <b className="font-display text-seal">조이는 사이 {live.kill}줄</b>
+        <b className="font-display text-seal">서로 긴장하는 짝 {live.kill}</b>
+        <br />
+        <span className="text-ink-faint">
+          화살표는 기운이 가는 방향이에요. 회색은 챙겨주고, 빨강은 긴장을 줍니다.
+        </span>
         <br />
         {live.kill === 0
-          ? '부딪히는 축이 없어요. 편한 대신 아무도 안 밀어붙입니다.'
+          ? '긴장하는 짝이 없어요. 만나면 편한데, 서로 밀어붙이진 않는 사이예요.'
           : live.born === 0
-            ? '서로 조이기만 하는 판이에요. 일은 되는데 오래 못 갑니다.'
-            : '밀어주는 축과 조이는 축이 같이 있어요. 굴러가는 파티입니다.'}
+            ? '긴장하는 짝만 있어요. 만나면 정신은 바짝 드는데 오래 있으면 지칩니다.'
+            : '챙기는 짝과 긴장하는 짝이 둘 다 있어요. 편할 땐 편하고, 필요할 땐 서로를 움직입니다.'}
       </p>
     </div>
   )
@@ -141,7 +145,7 @@ function Wuxing({ read }: { read: Read[] }) {
 
 /** 누구와 누구인지가 먼저 보여야 한다. 오행 고양이 둘을 ×로 마주 놓는다. */
 function ChemiRow({ pair }: { pair: Pair }) {
-  const { kind, color } = grade(pair.score)
+  const { kind, color } = grade(pair.percent)
   return (
     <li>
       <div className="mb-2 flex items-center gap-2">
@@ -153,6 +157,9 @@ function ChemiRow({ pair }: { pair: Pair }) {
         </span>
         <span className="font-display text-[14px]" style={{ color }}>
           {pair.tag}
+        </span>
+        <span className="ml-auto font-display text-[15px]" style={{ color }}>
+          {pair.percent}점
         </span>
       </div>
       <div className="mb-2 flex items-center gap-1.5">
@@ -375,12 +382,37 @@ function Notice({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Compat({ members }: { members: Member[] }) {
-  if (members.length >= 2) return <Balance members={members} />
+/**
+ * 2명이 모이면 결과부터 보여주고, 파티원 넣고 빼는 칸은 접는다.
+ * 궁합 보러 들어왔는데 입력 폼을 지나쳐 스크롤해야 하는 게 이 화면의 제일 큰 불편이었다.
+ * ponytail: <details>라 열림 상태를 따로 안 들고 있는다.
+ */
+function Compat({ members, children }: { members: Member[]; children: React.ReactNode }) {
+  if (members.length < 2)
+    return (
+      <>
+        {children}
+        <Notice>
+          {members.length === 1
+            ? '한 명만 더 들어오면 바로 궁합이 나와요!'
+            : '2명부터 파티 궁합이 나와요!'}
+        </Notice>
+      </>
+    )
+
   return (
-    <Notice>
-      {members.length === 1 ? '한 명만 더 들어오면 바로 궁합이 나와요!' : '2명부터 파티 궁합이 나와요!'}
-    </Notice>
+    <>
+      <Balance members={members} />
+      <details className="group">
+        <summary
+          className={`flex cursor-pointer list-none items-center justify-center gap-1 border-[3px] border-ink bg-card py-3 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] [&::-webkit-details-marker]:hidden ${PRESS}`}
+        >
+          파티원 {members.length}명 <span className="text-ink-faint">· 넣고 빼기</span>
+          <span className="inline-block text-ink-faint transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <div className="mt-2.5 flex flex-col gap-2.5">{children}</div>
+      </details>
+    </>
   )
 }
 
@@ -424,8 +456,9 @@ function Room({
 
   return (
     <div className="flex flex-col gap-2.5">
+      {/* 궁합이 나오기 시작하면 안내는 다 읽은 뒤다. 고양이만 남기고 접는다. */}
       <Panel className="bg-seal/[0.07] text-center">
-        <Cat size={76} className="animate-float mx-auto" />
+        <Cat size={members.length >= 2 ? 44 : 76} className="animate-float mx-auto" />
         {isOwner ? (
           // 비제어 입력이다. 파티원가 들어와 reload가 돌아도 타이핑 중인 글자를 뺏지 않는다.
           <input
@@ -442,35 +475,36 @@ function Room({
         ) : (
           <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 파티'}</h2>
         )}
-        <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
-          {isOwner
-            ? '링크를 단톡방에 보내면 친구들이 각자 자기 생일을 넣어요. 넣는 즉시 이 화면에 뜹니다.'
-            : '내 생일을 넣으면 바로 반영돼요. 로그인 안 해도 됩니다.'}
-        </p>
+        {members.length < 2 && (
+          <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+            {isOwner
+              ? '링크를 단톡방에 보내면 친구들이 각자 자기 생일을 넣어요. 넣는 즉시 이 화면에 뜹니다.'
+              : '내 생일을 넣으면 바로 반영돼요. 로그인 안 해도 됩니다.'}
+          </p>
+        )}
       </Panel>
 
-      <AddMember
-        onAdd={add}
-        myBirth={myBirth}
-        myName={myName}
-        canAddMe={!alreadyIn}
-        title={isOwner ? '파티원 추가' : '나도 넣기'}
-        namePlaceholder={isOwner ? '이름이나 별명' : '내 이름이나 별명'}
-      />
-
-      {members.length > 0 && (
-        <MemberList
-          members={members}
-          // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
-          onRemove={(i) => {
-            const m = members[i]
-            if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
-            else alert('파티를 만든 사람만 뺄 수 있어요.')
-          }}
+      <Compat members={members}>
+        <AddMember
+          onAdd={add}
+          myBirth={myBirth}
+          myName={myName}
+          canAddMe={!alreadyIn}
+          title={isOwner ? '파티원 추가' : '나도 넣기'}
+          namePlaceholder={isOwner ? '이름이나 별명' : '내 이름이나 별명'}
         />
-      )}
-
-      <Compat members={members} />
+        {members.length > 0 && (
+          <MemberList
+            members={members}
+            // 비로그인 참여자는 자기 것도 못 지운다. 서버가 누군지 알 방법이 없다.
+            onRemove={(i) => {
+              const m = members[i]
+              if (isOwner || (userId && m.addedBy === userId)) remove(m.rowId)
+              else alert('파티를 만든 사람만 뺄 수 있어요.')
+            }}
+          />
+        )}
+      </Compat>
 
       <ShareButton url={roomUrl(partyId)} label="링크 복사하기" />
       <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
@@ -602,30 +636,35 @@ function LocalParty({
     <div className="flex flex-col gap-2.5">
       {fromLink && (
         <Panel className="bg-seal/[0.07] text-center">
-          <Cat size={76} className="animate-float mx-auto" />
+          <Cat size={members.length >= 2 ? 44 : 76} className="animate-float mx-auto" />
           <h2 className="mt-2 font-display text-[14px] text-seal">친구가 보낸 파티예요</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
-            아래에 내 생일을 넣으면 나까지 포함한 궁합이 나와요.
-            <br />
-            새로 만들어진 링크를 단톡방에 다시 보내면 다음 사람이 이어서 넣어요.
+            {members.length >= 2 ? (
+              "'파티원 넣고 빼기'를 열어 내 생일을 넣으면 나까지 포함한 궁합이 나와요."
+            ) : (
+              <>
+                아래에 내 생일을 넣으면 나까지 포함한 궁합이 나와요.
+                <br />
+                새로 만들어진 링크를 단톡방에 다시 보내면 다음 사람이 이어서 넣어요.
+              </>
+            )}
           </p>
         </Panel>
       )}
 
-      <AddMember
-        onAdd={(m) => setMembers([...members, m])}
-        myBirth={myBirth}
-        myName={myName}
-        canAddMe={canAddMe}
-        title={fromLink ? '나도 넣기' : '파티원 추가'}
-        namePlaceholder={fromLink ? '내 이름이나 별명' : '이름이나 별명'}
-      />
-
-      {members.length > 0 && (
-        <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
-      )}
-
-      <Compat members={members} />
+      <Compat members={members}>
+        <AddMember
+          onAdd={(m) => setMembers([...members, m])}
+          myBirth={myBirth}
+          myName={myName}
+          canAddMe={canAddMe}
+          title={fromLink ? '나도 넣기' : '파티원 추가'}
+          namePlaceholder={fromLink ? '내 이름이나 별명' : '이름이나 별명'}
+        />
+        {members.length > 0 && (
+          <MemberList members={members} onRemove={(i) => setMembers(members.filter((_, j) => j !== i))} />
+        )}
+      </Compat>
 
       {members.length > 0 && (
         <>

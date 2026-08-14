@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { calcSaju, type Birth } from './saju'
-import { assignRoles, pickChemi } from './party'
+import { assignRoles, percentOf, pickChemi } from './party'
 
 const read = (list: [string, Birth][]) =>
   list.map(([name, birth]) => ({ name, saju: calcSaju(birth) }))
@@ -21,7 +21,7 @@ describe('케미 고르기', () => {
     const { good, bad } = pickChemi(FIVE)
     expect(good.length).toBe(3)
     expect(bad.length).toBeGreaterThan(0)
-    expect(good.every((g) => g.score >= Math.max(...bad.map((b) => b.score)))).toBe(true)
+    expect(good.every((g) => g.percent >= Math.max(...bad.map((b) => b.percent)))).toBe(true)
   })
 
   // 이름만 다르고 같은 태그·같은 문장이 반복되면 리포트가 복붙처럼 보인다.
@@ -48,6 +48,19 @@ describe('케미 고르기', () => {
   it('2명이면 한 조합만 나온다', () => {
     const { good, bad } = pickChemi(FIVE.slice(0, 2))
     expect(good.length + bad.length).toBe(1)
+  })
+})
+
+describe('궁합 점수', () => {
+  // 한 방향만 보면 "쟤는 날 좋아하는데 나는 아닌" 사이가 만점으로 나온다.
+  it('누구를 먼저 놓든 같은 점수가 나온다', () => {
+    const [a, b] = FIVE
+    expect(percentOf(a, b)).toBe(percentOf(b, a))
+  })
+
+  it('모든 조합이 0~100 안에 든다', () => {
+    const all = FIVE.flatMap((a) => FIVE.map((b) => percentOf(a, b)))
+    expect(all.every((p) => p >= 0 && p <= 100)).toBe(true)
   })
 })
 

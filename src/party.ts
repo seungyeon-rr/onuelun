@@ -2,7 +2,28 @@ import { calcSaju, shishenOf, type ShiShen } from './saju'
 import { PAIR_CHEMI, PARTY_ROLE } from './data'
 
 export type Read = { name: string; saju: ReturnType<typeof calcSaju> }
-export type Pair = { i: number; j: number; a: Read; b: Read } & (typeof PAIR_CHEMI)[ShiShen]
+export type Pair = { i: number; j: number; a: Read; b: Read; percent: number } & (typeof PAIR_CHEMI)[ShiShen]
+
+/**
+ * 십신은 늘 짝으로 맞물려서(食神↔偏印처럼) 양방향 평균이 2~7.5 안에서만 논다.
+ * 그대로 100을 곱하면 아무도 90점을 못 받고 점수도 여섯 종류뿐이라, 실제 범위를 다시 편다.
+ */
+const RAW = { min: 2, max: 7.5 }
+const SCALE = { min: 30, max: 95 }
+/** 신강·신약이 엇갈리면 서로 모자란 쪽을 채운다. 같으면 그만큼 뺀다. */
+const STRENGTH_FIT = 4
+
+/**
+ * 100점 만점 궁합. 양쪽 점수를 평균한다.
+ * A가 B를 보는 십신과 B가 A를 보는 십신이 달라서, 한쪽만 보면 짝사랑도 만점이 나온다.
+ */
+export function percentOf(a: Read, b: Read) {
+  const one = (x: Read, y: Read) => PAIR_CHEMI[shishenOf(x.saju.dayGan, y.saju.dayGan)].score
+  const avg = (one(a, b) + one(b, a)) / 2
+  const fit = a.saju.strong === b.saju.strong ? -STRENGTH_FIT : STRENGTH_FIT
+  const spread = ((avg - RAW.min) / (RAW.max - RAW.min)) * (SCALE.max - SCALE.min)
+  return Math.round(SCALE.min + spread) + fit
+}
 
 /**
  * 이미 두 자리 다 찬 조합은 건너뛴다. 같은 사람만 계속 나오면 리포트가 심심해진다.
@@ -32,10 +53,15 @@ export function pickChemi(read: Read[], take = 3) {
   const seen = new Set<string>()
   const ranked = read
     .flatMap((a, i) =>
-      read.map((b, j) => ({ i, j, a, b, ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)] })),
+      read.map((b, j) => ({
+        i, j, a, b,
+        percent: percentOf(a, b),
+        ...PAIR_CHEMI[shishenOf(a.saju.dayGan, b.saju.dayGan)],
+      })),
     )
     .filter((p) => p.i !== p.j)
-    .sort((x, y) => y.score - x.score)
+    // 점수는 양방향이 같으니, 같은 값이면 더 잘 어울리는 쪽 문장을 남긴다.
+    .sort((x, y) => y.percent - x.percent || y.score - x.score)
     .filter((p) => {
       const key = `${Math.min(p.i, p.j)}-${Math.max(p.i, p.j)}`
       if (seen.has(key)) return false
