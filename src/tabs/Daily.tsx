@@ -2,7 +2,7 @@ import {
   calcSaju, dateKey, ganOfDay, isOffDay, seededPick, todayShiShen, SHISHEN_KO, type Birth,
 } from '../saju'
 import { DAILY, PAIR_CHEMI, type Tip } from '../data'
-import { Panel, Label, Seal, Cat } from '../ui'
+import { Panel, Label, Seal, Capture, Cat } from '../ui'
 
 const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토']
 
@@ -39,29 +39,31 @@ export default function Daily({ birth }: { birth: Birth }) {
 
   return (
     <div className="flex flex-col gap-2.5">
-      <Panel className="relative overflow-hidden">
-        <div className="animate-stamp absolute right-5 top-5" style={{ animationDelay: '250ms' }}>
-          <Seal char={ganOfDay(today)} className="size-11 text-[28px]" />
-        </div>
+      <Capture>
+        <Panel className="relative overflow-hidden">
+          <div className="animate-stamp absolute right-5 top-5" style={{ animationDelay: '250ms' }}>
+            <Seal char={ganOfDay(today)} className="size-11 text-[25px]" />
+          </div>
 
-        <p className="text-[12px] font-semibold text-ink-faint">
-          {today.getMonth() + 1}월 {today.getDate()}일 {WEEKDAY[today.getDay()]}요일
-        </p>
-        <p className="mt-5 text-[14px] text-ink-soft">오늘 나에게 들어온 기운</p>
-        <h2 className="mt-2 font-display text-[26px] leading-none tracking-tight">
-          {SHISHEN_KO[shishen]}
-          <span className="ml-2 text-[15px] text-ink-faint">
-            {shishen}({f.key})
-          </span>
-        </h2>
-        <div className="mt-2 flex items-center gap-2">
-          <Cat el={saju.dayElement} size={40} className="animate-float shrink-0" />
-          <p className="font-display text-[14px] text-seal">{f.mood}</p>
-        </div>
-        <p className="mt-5 border-t border-ink/[0.08] pt-5 text-[14px] leading-relaxed text-ink-soft">
-          {f.line}
-        </p>
-      </Panel>
+          <p className="text-[12px] font-semibold text-ink-faint">
+            {today.getMonth() + 1}월 {today.getDate()}일 {WEEKDAY[today.getDay()]}요일
+          </p>
+          <p className="mt-5 text-[13px] text-ink-soft">오늘 나에게 들어온 기운</p>
+          <h2 className="mt-2 font-display text-[23px] leading-none tracking-tight">
+            {SHISHEN_KO[shishen]}
+            <span className="ml-2 text-[14px] text-ink-faint">
+              {shishen}({f.key})
+            </span>
+          </h2>
+          <div className="mt-2 flex items-center gap-2">
+            <Cat el={saju.dayElement} size={40} className="animate-float shrink-0" />
+            <p className="font-display text-[13px] text-seal">{f.mood}</p>
+          </div>
+          <p className="mt-5 border-t border-ink/[0.08] pt-5 text-[13px] leading-relaxed text-ink-soft">
+            {f.line}
+          </p>
+        </Panel>
+      </Capture>
 
       <Panel delay={80} className="divide-y divide-ink/[0.06]">
         {(
@@ -72,22 +74,22 @@ export default function Daily({ birth }: { birth: Birth }) {
         ).map(([label, tip]) => (
           <div key={label} className="py-3.5 first:pt-0 last:pb-0">
             <div className="flex items-baseline justify-between gap-3">
-              <span className="shrink-0 font-display text-[13px] text-ink-faint">{label}</span>
-              <span className="text-right font-display text-[17px] leading-tight">{tip.what}</span>
+              <span className="shrink-0 font-display text-[12px] text-ink-faint">{label}</span>
+              <span className="text-right font-display text-[16px] leading-tight">{tip.what}</span>
             </div>
-            <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{tip.why}</p>
+            <p className="mt-2 text-[12px] leading-relaxed text-ink-soft">{tip.why}</p>
           </div>
         ))}
       </Panel>
 
       <Panel delay={140} className="bg-seal/[0.07]">
         <div className="flex items-baseline justify-between gap-3">
-          <span className="shrink-0 font-display text-[13px] text-seal/70">오늘 하지 말 것</span>
-          <span className="text-right font-display text-[17px] leading-tight text-seal">
+          <span className="shrink-0 font-display text-[12px] text-seal/70">오늘 하지 말 것</span>
+          <span className="text-right font-display text-[16px] leading-tight text-seal">
             {avoid.what}
           </span>
         </div>
-        <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{avoid.why}</p>
+        <p className="mt-2 text-[12px] leading-relaxed text-ink-soft">{avoid.why}</p>
       </Panel>
 
       <Panel delay={200}>
@@ -121,12 +123,12 @@ export default function Daily({ birth }: { birth: Birth }) {
           ).map(([label, w, tone]) => (
             <div key={label} className="py-3.5 last:pb-0">
               <div className="flex items-baseline justify-between gap-3">
-                <span className="shrink-0 font-display text-[13px] text-ink-faint">{label}</span>
-                <span className={`text-right font-display text-[17px] leading-tight ${tone}`}>
+                <span className="shrink-0 font-display text-[12px] text-ink-faint">{label}</span>
+                <span className={`text-right font-display text-[16px] leading-tight ${tone}`}>
                   {DAILY[w.s].week.what}
                 </span>
               </div>
-              <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
+              <p className="mt-2 text-[12px] leading-relaxed text-ink-soft">
                 <span className="text-ink-faint">{SHISHEN_KO[w.s]} 운. </span>
                 {DAILY[w.s].week.why}
               </p>
@@ -135,7 +137,7 @@ export default function Daily({ birth }: { birth: Birth }) {
         </div>
       </Panel>
 
-      <p className="px-2 pb-2 text-center text-[14px] leading-relaxed text-ink-faint">
+      <p className="px-2 pb-2 text-center text-[13px] leading-relaxed text-ink-faint">
         자정에 딱 한 번 바뀌어요. 새로고침해도 그대로!
       </p>
     </div>

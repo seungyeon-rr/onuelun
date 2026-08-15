@@ -96,8 +96,8 @@ export default function App() {
       <header className="flex items-end gap-2.5 px-4 pb-3 pt-6">
         <Cat size={52} className="animate-float shrink-0" />
         <div className="flex-1">
-          <h1 className="font-display text-[20px] leading-none">오늘운</h1>
-          <p className="mt-2 text-[13px] text-ink-faint">생일로 보는 우리 파티 궁합</p>
+          <h1 className="font-display text-[18px] leading-none">오늘운</h1>
+          <p className="mt-2 text-[12px] text-ink-faint">생일로 보는 우리 파티 궁합</p>
         </div>
         {birth && !editing && tab !== 'party' && (
           <button
@@ -105,7 +105,7 @@ export default function App() {
               setDraft(birth)
               setEditing(true)
             }}
-            className={`border-[3px] border-ink bg-card px-2.5 py-1.5 text-[14px] text-ink shadow-[3px_3px_0_var(--color-ink)] ${PRESS}`}
+            className={`border-[3px] border-ink bg-card px-2.5 py-1.5 text-[13px] text-ink shadow-[3px_3px_0_var(--color-ink)] ${PRESS}`}
           >
             생일 변경
           </button>
@@ -113,7 +113,7 @@ export default function App() {
       </header>
 
       {guest && (
-        <div className="mx-5 mb-1 flex items-center gap-2 border-[3px] border-ink bg-seal px-3 py-1.5 text-[14px] text-white">
+        <div className="mx-5 mb-1 flex items-center gap-2 border-[3px] border-ink bg-seal px-3 py-1.5 text-[13px] text-white">
           <span className="flex-1">친구 운세를 보는 중이에요</span>
           {myBirth && (
             <button onClick={() => setGuest(null)} className="underline">
@@ -127,8 +127,8 @@ export default function App() {
         {needsBirth ? (
           <Panel className="text-center">
             <Cat size={108} className="animate-float mx-auto" />
-            <h2 className="mt-3 font-display text-[19px]">생일만 알려주면 돼요!</h2>
-            <p className="mb-5 mt-2 text-[14px] leading-relaxed text-ink-soft">
+            <h2 className="mt-3 font-display text-[17px]">생일만 알려주면 돼요!</h2>
+            <p className="mb-5 mt-2 text-[13px] leading-relaxed text-ink-soft">
               가입도 로그인도 없어요. 생일은 이 기기에 저장돼요.
             </p>
             <div className="text-left">
@@ -144,7 +144,7 @@ export default function App() {
             {editing && (
               <button
                 onClick={() => setEditing(false)}
-                className="mt-2 min-h-11 w-full text-[14px] text-ink-faint"
+                className="mt-2 min-h-11 w-full text-[13px] text-ink-faint"
               >
                 취소
               </button>
@@ -184,7 +184,7 @@ export default function App() {
                   : `bg-card text-ink-soft shadow-[3px_3px_0_var(--color-ink)] ${PRESS}`
               }`}
             >
-              <span className="font-display text-[15px] leading-none">{t.label}</span>
+              <span className="font-display text-[14px] leading-none">{t.label}</span>
             </button>
           ))}
         </div>

@@ -52,7 +52,7 @@ export const PRESS =
 export function Seal({ char, className = '' }: { char: string; className?: string }) {
   return (
     <span
-      className={`inline-grid size-10 shrink-0 place-items-center border-[3px] border-ink bg-seal text-[15px] leading-none text-white shadow-[3px_3px_0_var(--color-ink)] ${className}`}
+      className={`inline-grid size-10 shrink-0 place-items-center border-[3px] border-ink bg-seal text-[14px] leading-none text-white shadow-[3px_3px_0_var(--color-ink)] ${className}`}
     >
       {char}
     </span>
@@ -78,9 +78,26 @@ export function Panel({
   )
 }
 
+/**
+ * 스크린샷 한 장으로 끝내는 영역.
+ * 단톡방에 올릴 땐 저장 버튼까지 안 가고 그냥 화면을 찍는다. 어디까지 찍으면 되는지
+ * 점선으로 잘라주고, 잘려서 돌아다녀도 어디서 나온 건지 알게 밑에 한 줄 남긴다.
+ * ponytail: 안에 넣는 건 폰 한 화면에 드는 판때기 하나까지. 더 길어지면 그때 접는다.
+ */
+export function Capture({ children }: { children: ReactNode }) {
+  return (
+    <div className="border-[3px] border-dashed border-ink/25 p-1.5">
+      {children}
+      <p className="pt-1.5 text-center text-[11px] leading-none text-ink-faint">
+        오늘운 · 생일로 보는 우리 파티 궁합
+      </p>
+    </div>
+  )
+}
+
 export function Label({ children }: { children: ReactNode }) {
   return (
-    <h3 className="mb-2 font-display text-[14px] text-ink-faint">{children}</h3>
+    <h3 className="mb-2 font-display text-[13px] text-ink-faint">{children}</h3>
   )
 }
 
@@ -106,7 +123,7 @@ export function BirthField({
   return (
     <div className="flex flex-col gap-2 text-left">
       <label className="flex flex-col gap-1">
-        <span className="font-display text-[13px] text-ink-faint">생년월일</span>
+        <span className="font-display text-[12px] text-ink-faint">생년월일</span>
         <input
           type="date"
           autoFocus={autoFocus}
@@ -125,7 +142,7 @@ export function BirthField({
       </label>
 
       <label className="flex flex-col gap-1">
-        <span className="font-display text-[13px] text-ink-faint">태어난 시각</span>
+        <span className="font-display text-[12px] text-ink-faint">태어난 시각</span>
         <select
           value={value && value.h !== HOUR_UNKNOWN ? zhiIndexOf(value.h) : HOUR_UNKNOWN}
           onChange={(e) => {
@@ -168,7 +185,7 @@ export function ShareButton({ url, label = '친구한테 보내기' }: { url: st
           alert('링크를 복사하지 못했어요. 주소창의 주소를 복사해 주세요.')
         }
       }}
-      className={`w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
+      className={`w-full border-[3px] border-ink bg-hanji-deep py-3.5 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
     >
       {copied ? '링크 복사됨!' : label}
     </button>

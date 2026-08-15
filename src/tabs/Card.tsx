@@ -3,7 +3,7 @@ import {
   ELEMENTS, ELEMENT_KO, GAN_KO, josa, type Birth, type Gan,
 } from '../saju'
 import { AXES, GAN_META, ELEMENT_META, RARITY, rarityRank } from '../data'
-import { Panel, Label, ShareButton, Cat, PRESS } from '../ui'
+import { Panel, Label, ShareButton, Capture, Cat, PRESS } from '../ui'
 import { saveCardImage } from '../cardImage'
 import { mbtiOdds, mbtiSides } from '../mbti'
 
@@ -66,27 +66,29 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         카드 맨 위에 한 번 밝힌다. 오늘 운세는 일간만 쓰니 여기에만 붙인다.
       */}
       {!saju.hasTime && (
-        <p className="border-[3px] border-ink bg-hanji-deep px-3.5 py-2.5 text-[13px] leading-relaxed">
+        <p className="border-[3px] border-ink bg-hanji-deep px-3.5 py-2.5 text-[12px] leading-relaxed">
           태어난 시간을 안 넣어서 <b className="font-display">여덟 글자 중 여섯 글자</b>로 낸
           결과예요. 유형(신강/신약)·능력치·MBTI·오행이 다 달라질 수 있어요. 시간을 알면 위 '생일
           변경'에서 넣어보세요.
         </p>
       )}
 
-      <Panel className="text-center">
-        <p className="text-[12px] font-semibold text-ink-faint">
-          내 유형 · {rarityLine} · 20종 중 {rank}번째로 드묾
-        </p>
-        <p className="mt-2 font-display text-[22px] tracking-tight">
-          <span className="text-[17px] text-ink-faint">{grade}</span> {ganName(saju.dayGan)}
-        </p>
-        <Cat el={saju.dayElement} size={112} className="animate-float mx-auto mt-2" />
-        <h2 className="mt-1 font-display text-[19px] leading-snug text-seal">{me.character}</h2>
-        <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">{me.traits}</p>
-        <p className="mt-3 border-t border-ink/[0.08] pt-3 text-[13px] leading-relaxed text-ink-soft">
-          {saju.strong ? me.strong : me.weak}
-        </p>
-      </Panel>
+      <Capture>
+        <Panel className="text-center">
+          <p className="text-[12px] font-semibold text-ink-faint">
+            내 유형 · {rarityLine} · 20종 중 {rank}번째로 드묾
+          </p>
+          <p className="mt-2 font-display text-[20px] tracking-tight">
+            <span className="text-[16px] text-ink-faint">{grade}</span> {ganName(saju.dayGan)}
+          </p>
+          <Cat el={saju.dayElement} size={112} className="animate-float mx-auto mt-2" />
+          <h2 className="mt-1 font-display text-[17px] leading-snug text-seal">{me.character}</h2>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">{me.traits}</p>
+          <p className="mt-3 border-t border-ink/[0.08] pt-3 text-[12px] leading-relaxed text-ink-soft">
+            {saju.strong ? me.strong : me.weak}
+          </p>
+        </Panel>
+      </Capture>
 
       <Panel delay={60}>
         <Label>이런 사람입니다</Label>
@@ -97,8 +99,8 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
             ['취급 설명서', me.manual, 'text-ink'],
           ].map(([k, v, tone]) => (
             <div key={k}>
-              <dt className={`font-display text-[14px] ${tone}`}>{k}</dt>
-              <dd className="mt-1 text-[13px] leading-relaxed text-ink-soft">{v}</dd>
+              <dt className={`font-display text-[13px] ${tone}`}>{k}</dt>
+              <dd className="mt-1 text-[12px] leading-relaxed text-ink-soft">{v}</dd>
             </div>
           ))}
         </dl>
@@ -113,7 +115,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
               <p className="text-[12px] text-ink-faint">
                 {tag} · {ganName(g)}
               </p>
-              <p className="mt-1 font-display text-[13px] leading-snug">{GAN_META[g].character}</p>
+              <p className="mt-1 font-display text-[12px] leading-snug">{GAN_META[g].character}</p>
             </div>
           ))}
         </div>
@@ -124,7 +126,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         <div className="mt-3 flex flex-col gap-2.5">
           {scores.map((s, i) => (
             <div key={s.key} className="flex items-center gap-2.5">
-              <span className="w-9 shrink-0 font-display text-[14px]">{s.key}</span>
+              <span className="w-9 shrink-0 font-display text-[13px]">{s.key}</span>
               <div className="h-4 flex-1 overflow-hidden border-[3px] border-ink bg-hanji">
                 <div
                   className="h-full bg-ink"
@@ -135,13 +137,13 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
                   }}
                 />
               </div>
-              <span className="w-7 shrink-0 text-right font-display text-[14px] text-ink-faint">
+              <span className="w-7 shrink-0 text-right font-display text-[13px] text-ink-faint">
                 {s.score}
               </span>
             </div>
           ))}
         </div>
-        <p className="mt-4 border-t border-ink/[0.08] pt-3.5 text-[13px] leading-relaxed text-ink-soft">
+        <p className="mt-4 border-t border-ink/[0.08] pt-3.5 text-[12px] leading-relaxed text-ink-soft">
           <b className="font-display text-seal">{top.key}</b>이 제일 높고{' '}
           <b className="font-display">{bottom.key}</b>이 제일 낮아요. {bottom.low}
         </p>
@@ -152,7 +154,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         <ul className="mt-1 flex flex-col gap-2.5">
           {odds.map((o, i) => (
             <li key={o.type} className="flex items-center gap-2.5">
-              <span className="w-14 shrink-0 font-display text-[16px] tracking-tight">{o.type}</span>
+              <span className="w-14 shrink-0 font-display text-[15px] tracking-tight">{o.type}</span>
               <div className="h-3.5 flex-1 overflow-hidden border-[3px] border-ink bg-hanji">
                 <div
                   className="h-full"
@@ -163,7 +165,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
                   }}
                 />
               </div>
-              <span className="w-10 shrink-0 text-right font-display text-[14px] text-ink-faint">
+              <span className="w-10 shrink-0 text-right font-display text-[13px] text-ink-faint">
                 {Math.round(o.p * 100)}%
               </span>
             </li>
@@ -176,7 +178,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
             const sure = Math.abs(two[0].p - two[1].p) > CLEAR
             return (
               <div key={win.letter} className="flex-1 text-center">
-                <p className={`font-display text-[17px] ${sure ? 'text-ink' : 'text-ink-faint'}`}>
+                <p className={`font-display text-[16px] ${sure ? 'text-ink' : 'text-ink-faint'}`}>
                   {win.letter}
                 </p>
                 <p className="mt-0.5 text-[12px] text-ink-faint">{Math.round(win.p * 100)}%</p>
@@ -184,7 +186,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
             )
           })}
         </div>
-        <p className="mt-3 text-[13px] leading-relaxed text-ink-faint">
+        <p className="mt-3 text-[12px] leading-relaxed text-ink-faint">
           60%에 못 미치는 축은 흐리게 뒀어요. 그 축은 사주만으론 어느 쪽인지 못 가립니다.
           <br />
           검사 결과랑 다르면 검사 쪽이 맞습니다.
@@ -208,10 +210,10 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
                     />
                   ))}
                 </div>
-                <span className="font-display text-[14px]" style={{ color: ELEMENT_META[el].color }}>
+                <span className="font-display text-[13px]" style={{ color: ELEMENT_META[el].color }}>
                   {ELEMENT_KO[el]}
                 </span>
-                <span className="text-[14px] text-ink-faint">
+                <span className="text-[13px] text-ink-faint">
                   {n}/{totalElements}
                 </span>
               </div>
@@ -220,7 +222,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         </div>
         <ul className="mt-4 flex flex-col gap-2.5 border-t border-ink/[0.08] pt-3.5">
           {mostEl && (
-            <li className="text-[13px] leading-relaxed text-ink-soft">
+            <li className="text-[12px] leading-relaxed text-ink-soft">
               <b className="font-display" style={{ color: ELEMENT_META[mostEl].color }}>
                 {ELEMENT_KO[mostEl]}({mostEl}) 많음
               </b>
@@ -229,7 +231,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
             </li>
           )}
           {noneEls.map((el) => (
-            <li key={el} className="text-[13px] leading-relaxed text-ink-soft">
+            <li key={el} className="text-[12px] leading-relaxed text-ink-soft">
               <b className="font-display" style={{ color: ELEMENT_META[el].color }}>
                 {ELEMENT_KO[el]}({el}) 없음
               </b>
@@ -243,7 +245,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
       <div className="flex flex-col gap-2.5">
         <button
           onClick={() => saveCardImage(art, '오늘운-내카드.jpg')}
-          className={`w-full border-[3px] border-ink bg-card py-3.5 font-display text-[15px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
+          className={`w-full border-[3px] border-ink bg-card py-3.5 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] ${PRESS}`}
         >
           이미지로 저장하기
         </button>

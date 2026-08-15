@@ -57,7 +57,7 @@
 html {
   background: var(--color-hanji-deep);
   /* 모바일 밀도. rem 여백도 같이 줄어든다. */
-  font-size: 15px;
+  font-size: 14px;
 }
 
 body {

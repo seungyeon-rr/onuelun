@@ -5,7 +5,7 @@ import {
 } from '../saju'
 import { BALANCED_TYPE, ELEMENT_META, PARTY_TYPE } from '../data'
 import { assignRoles, pickChemi, type Pair, type Read } from '../party'
-import { Panel, Label, BirthField, ShareButton, Cat, PRESS } from '../ui'
+import { Panel, Label, BirthField, ShareButton, Capture, Cat, PRESS } from '../ui'
 import { cleanPartyId, newPartyId, supabase, type PartyRow } from '../supabase'
 import { useMyParties, useParty } from '../hooks/useParty'
 
@@ -121,7 +121,7 @@ function Wuxing({ read }: { read: Read[] }) {
       </svg>
 
       {/* 세는 단위(선이냐 사람이냐)를 설명할 자리가 없다. 그림 읽는 법만 남긴다. */}
-      <p className="mt-1 text-center text-[13px] leading-relaxed text-ink-faint">
+      <p className="mt-1 text-center text-[12px] leading-relaxed text-ink-faint">
         화살표는 기운이 가는 방향이에요. 회색은 챙겨주고, 빨강은 긴장을 줍니다.
       </p>
     </div>
@@ -135,26 +135,26 @@ function ChemiRow({ pair }: { pair: Pair }) {
     <li>
       <div className="mb-2 flex items-center gap-2">
         <span
-          className="border-[3px] border-ink px-2 py-0.5 font-display text-[13px] text-white"
+          className="border-[3px] border-ink px-2 py-0.5 font-display text-[12px] text-white"
           style={{ background: color }}
         >
           {kind}
         </span>
-        <span className="font-display text-[14px]" style={{ color }}>
+        <span className="font-display text-[13px]" style={{ color }}>
           {pair.tag}
         </span>
-        <span className="ml-auto font-display text-[15px]" style={{ color }}>
+        <span className="ml-auto font-display text-[14px]" style={{ color }}>
           {pair.percent}점
         </span>
       </div>
       <div className="mb-2 flex items-center gap-1.5">
         <Cat el={pair.a.saju.dayElement} size={32} className="shrink-0" />
-        <span className="min-w-0 flex-1 truncate text-[14px]">{pair.a.name}</span>
-        <span className="shrink-0 font-display text-[13px] text-ink-faint">×</span>
+        <span className="min-w-0 flex-1 truncate text-[13px]">{pair.a.name}</span>
+        <span className="shrink-0 font-display text-[12px] text-ink-faint">×</span>
         <Cat el={pair.b.saju.dayElement} size={32} className="shrink-0" />
-        <span className="min-w-0 flex-1 truncate text-[14px]">{pair.b.name}</span>
+        <span className="min-w-0 flex-1 truncate text-[13px]">{pair.b.name}</span>
       </div>
-      <p className="text-[14px] leading-relaxed">{pair.line(pair.a.name, pair.b.name)}</p>
+      <p className="text-[13px] leading-relaxed">{pair.line(pair.a.name, pair.b.name)}</p>
     </li>
   )
 }
@@ -176,29 +176,31 @@ function Balance({ members }: { members: Member[] }) {
 
   return (
     <>
-      <Panel delay={120}>
-        <Label>우리 파티 유형</Label>
-        <p className="mb-4 font-display text-[17px] leading-snug text-seal">{partyType}</p>
-        <div className="mt-3 flex h-5 overflow-hidden border-[3px] border-ink">
-          {ELEMENTS.map((e) =>
-            totals[e] === 0 ? null : (
-              <div
-                key={e}
-                className="animate-rise h-full"
-                style={{ width: `${(totals[e] / sum) * 100}%`, background: ELEMENT_META[e].color }}
-              />
-            ),
-          )}
-        </div>
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[14px]">
-          {ELEMENTS.map((e) => (
-            <span key={e} className="flex items-center gap-1.5">
-              <span className="size-3 border-2 border-ink" style={{ background: ELEMENT_META[e].color }} />
-              {ELEMENT_KO[e]} {Math.round((totals[e] / sum) * 100)}%
-            </span>
-          ))}
-        </div>
-      </Panel>
+      <Capture>
+        <Panel delay={120}>
+          <Label>우리 파티 유형</Label>
+          <p className="mb-4 font-display text-[16px] leading-snug text-seal">{partyType}</p>
+          <div className="mt-3 flex h-5 overflow-hidden border-[3px] border-ink">
+            {ELEMENTS.map((e) =>
+              totals[e] === 0 ? null : (
+                <div
+                  key={e}
+                  className="animate-rise h-full"
+                  style={{ width: `${(totals[e] / sum) * 100}%`, background: ELEMENT_META[e].color }}
+                />
+              ),
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[13px]">
+            {ELEMENTS.map((e) => (
+              <span key={e} className="flex items-center gap-1.5">
+                <span className="size-3 border-2 border-ink" style={{ background: ELEMENT_META[e].color }} />
+                {ELEMENT_KO[e]} {Math.round((totals[e] / sum) * 100)}%
+              </span>
+            ))}
+          </div>
+        </Panel>
+      </Capture>
 
       <Panel delay={150}>
         <Label>케미 리포트</Label>
@@ -214,7 +216,7 @@ function Balance({ members }: { members: Member[] }) {
         <Label>역할 배정</Label>
         <ul className="flex flex-col gap-2.5">
           {roles.map(({ role, line }, i) => (
-            <li key={i} className="text-[14px] leading-relaxed">
+            <li key={i} className="text-[13px] leading-relaxed">
               <b className="font-display">
                 {read[i].name} — {role}
               </b>
@@ -229,7 +231,7 @@ function Balance({ members }: { members: Member[] }) {
         <Label>우리 파티은요</Label>
         <ul className="flex flex-col gap-2.5">
           {missing.map((e) => (
-            <li key={e} className="text-[14px] leading-relaxed">
+            <li key={e} className="text-[13px] leading-relaxed">
               <b className="font-display" style={{ color: ELEMENT_META[e].color }}>
                 {ELEMENT_KO[e]}({e}) 없음
               </b>
@@ -238,7 +240,7 @@ function Balance({ members }: { members: Member[] }) {
             </li>
           ))}
           {dominant.map((e) => (
-            <li key={e} className="text-[14px] leading-relaxed">
+            <li key={e} className="text-[13px] leading-relaxed">
               <b className="font-display" style={{ color: ELEMENT_META[e].color }}>
                 {ELEMENT_KO[e]}({e}) 과다
               </b>
@@ -247,7 +249,7 @@ function Balance({ members }: { members: Member[] }) {
             </li>
           ))}
           {missing.length === 0 && dominant.length === 0 && (
-            <li className="text-[14px] leading-relaxed">
+            <li className="text-[13px] leading-relaxed">
               오행이 고르게 섞였어요. 심심할 만큼 균형 잡힌 파티예요!
             </li>
           )}
@@ -277,11 +279,11 @@ function MemberList({
             >
               <Cat el={s.dayElement} size={34} className="shrink-0" />
               <div className="min-w-0 flex-1">
-                <p className="truncate text-[14px]">{m.name}</p>
+                <p className="truncate text-[13px]">{m.name}</p>
                 <p className="text-[12px] text-ink-faint">{fmtBirth(m.birth)}</p>
               </div>
               <span
-                className="shrink-0 font-display text-[13px]"
+                className="shrink-0 font-display text-[12px]"
                 style={{ color: ELEMENT_META[s.dayElement].color }}
               >
                 {ELEMENT_KO[s.dayElement]}
@@ -290,7 +292,7 @@ function MemberList({
                 <button
                   onClick={() => onRemove(i)}
                   aria-label={`${m.name} 빼기`}
-                  className="px-1 text-[14px] leading-none text-ink-faint"
+                  className="px-1 text-[13px] leading-none text-ink-faint"
                 >
                   ×
                 </button>
@@ -363,7 +365,7 @@ function AddMember({
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">{children}</p>
+    <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">{children}</p>
   )
 }
 
@@ -389,7 +391,7 @@ function Compat({ members, children }: { members: Member[]; children: React.Reac
     <>
       <details className="group">
         <summary
-          className={`flex cursor-pointer list-none items-center justify-center gap-1 border-[3px] border-ink bg-card py-3 font-display text-[14px] text-ink shadow-[4px_4px_0_var(--color-ink)] [&::-webkit-details-marker]:hidden ${PRESS}`}
+          className={`flex cursor-pointer list-none items-center justify-center gap-1 border-[3px] border-ink bg-card py-3 font-display text-[13px] text-ink shadow-[4px_4px_0_var(--color-ink)] [&::-webkit-details-marker]:hidden ${PRESS}`}
         >
           파티원 {members.length}명 <span className="text-ink-faint">· 넣고 빼기</span>
           <span className="inline-block text-ink-faint transition-transform group-open:rotate-180">▾</span>
@@ -429,7 +431,7 @@ function Room({
     return (
       <div className="flex flex-col gap-2.5">
         <Notice>{error ?? '없는 파티예요.'}</Notice>
-        <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
+        <button onClick={onLeave} className="min-h-11 text-[13px] text-ink-faint underline">
           내 파티 목록으로
         </button>
       </div>
@@ -455,13 +457,13 @@ function Room({
             placeholder="파티 이름 붙이기 (예: 3팀 점심)"
             maxLength={20}
             aria-label="파티 이름"
-            className="mt-2 w-full bg-transparent text-center font-display text-[14px] text-seal outline-none placeholder:text-ink-faint"
+            className="mt-2 w-full bg-transparent text-center font-display text-[13px] text-seal outline-none placeholder:text-ink-faint"
           />
         ) : (
-          <h2 className="mt-2 font-display text-[14px] text-seal">{party.name || '우리 파티'}</h2>
+          <h2 className="mt-2 font-display text-[13px] text-seal">{party.name || '우리 파티'}</h2>
         )}
         {members.length < 2 && (
-          <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
             {isOwner
               ? '링크를 단톡방에 보내면 친구들이 각자 자기 생일을 넣어요. 넣는 즉시 이 화면에 뜹니다.'
               : '내 생일을 넣으면 바로 반영돼요. 로그인 안 해도 됩니다.'}
@@ -492,12 +494,12 @@ function Room({
       </Compat>
 
       <ShareButton url={roomUrl(partyId)} label="링크 복사하기" />
-      <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
+      <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">
         링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.
         <br />
         누가 들어오면 새로고침 없이 바로 뜹니다.
       </p>
-      <button onClick={onLeave} className="min-h-11 text-[14px] text-ink-faint underline">
+      <button onClick={onLeave} className="min-h-11 text-[13px] text-ink-faint underline">
         내 파티 목록으로
       </button>
     </div>
@@ -532,7 +534,7 @@ function MyParties({
           aria-label="내 이름"
           className="w-full border-[3px] border-ink bg-hanji px-4 py-3 outline-none placeholder:text-ink-faint focus:border-seal"
         />
-        <p className="mb-4 mt-2 text-[13px] text-ink-faint">
+        <p className="mb-4 mt-2 text-[12px] text-ink-faint">
           파티에 나를 넣을 때 이 이름으로 들어가요. 친구들 화면에도 이렇게 보입니다.
         </p>
 
@@ -562,7 +564,7 @@ function MyParties({
               >
                 <button onClick={() => onOpen(p.id)} className="min-w-0 flex-1 truncate text-left">
                   <span className="font-display">{partyLabel(p)}</span>
-                  <span className="ml-2 text-[14px] text-ink-faint">{p.count}명</span>
+                  <span className="ml-2 text-[13px] text-ink-faint">{p.count}명</span>
                 </button>
                 {/* 남이 만든 파티는 내가 못 지운다. 지우는 버튼도 보이면 안 된다. */}
                 {p.mine ? (
@@ -572,7 +574,7 @@ function MyParties({
                         remove(p.id)
                     }}
                     aria-label={`${partyLabel(p)} 삭제`}
-                    className="px-1 text-[14px] leading-none text-ink-faint"
+                    className="px-1 text-[13px] leading-none text-ink-faint"
                   >
                     ×
                   </button>
@@ -622,8 +624,8 @@ function LocalParty({
       {fromLink && (
         <Panel className="bg-seal/[0.07] text-center">
           <Cat size={members.length >= 2 ? 44 : 76} className="animate-float mx-auto" />
-          <h2 className="mt-2 font-display text-[14px] text-seal">친구가 보낸 파티예요</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+          <h2 className="mt-2 font-display text-[13px] text-seal">친구가 보낸 파티예요</h2>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
             {members.length >= 2 ? (
               "아래 '파티원 추가하기'를 열어 내 생일을 넣으면 나까지 포함한 궁합이 나와요."
             ) : (
@@ -657,7 +659,7 @@ function LocalParty({
             url={`${location.origin}${location.pathname}?t=party&p=${encodeParty(members)}`}
             label={fromLink ? '나 넣은 새 링크 복사하기' : '링크 만들어서 복사하기'}
           />
-          <p className="px-2 text-center text-[14px] leading-relaxed text-ink-faint">
+          <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">
             링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.
           </p>
         </>
@@ -735,8 +737,8 @@ export default function Party({
       <div className="flex flex-col gap-2.5">
         <Panel className="text-center">
           <Cat size={100} className="animate-float mx-auto" />
-          <h2 className="mt-3 font-display text-[19px]">파티 만들려면 로그인!</h2>
-          <p className="mt-2 text-[14px] leading-relaxed text-ink-soft">
+          <h2 className="mt-3 font-display text-[17px]">파티 만들려면 로그인!</h2>
+          <p className="mt-2 text-[13px] leading-relaxed text-ink-soft">
             링크 받은 친구는 로그인 없이 자기 생일만 넣으면 돼요.
             <br />
             파티를 만들고 목록으로 관리하는 쪽만 로그인이 필요해요.
@@ -761,7 +763,7 @@ export default function Party({
         setMyName={setMyName}
         onOpen={goRoom}
       />
-      <button onClick={signOut} className="min-h-11 text-[14px] text-ink-faint underline">
+      <button onClick={signOut} className="min-h-11 text-[13px] text-ink-faint underline">
         로그아웃
       </button>
     </div>

@@ -13,7 +13,10 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 /** 카톡 미리보기는 어차피 두 줄에서 잘린다. 길면 자른다. */
 const HEAD_MAX = 60
-const BIRTH_MAX = 20
+/** 파티 링크(p)는 파티원 전체가 실려서 길다. 30명까지 담기고도 남는 길이로 잡는다. */
+const VALUE_MAX = 3000
+/** 앱으로 넘길 때 살려둘 파라미터. 여기 없는 건 버린다 — 남의 링크가 주소를 마음대로 못 만들게. */
+const PASS = ['t', 'b', 'p', 'party']
 
 const TITLE = '오늘운 · 생일로 보는 우리 파티 궁합'
 const DESC = '생일만 넣으면 우리 파티 궁합이 나옵니다. 설치도 가입도 필요 없어요.'
