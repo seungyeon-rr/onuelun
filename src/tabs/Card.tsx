@@ -126,7 +126,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         <div className="mt-3 flex flex-col gap-2.5">
           {scores.map((s, i) => (
             <div key={s.key} className="flex items-center gap-2.5">
-              <span className="w-9 shrink-0 font-display text-[13px]">{s.key}</span>
+              <span className="min-w-9 shrink-0 whitespace-nowrap font-display text-[13px]">{s.key}</span>
               <div className="h-4 flex-1 overflow-hidden border-[3px] border-ink bg-hanji">
                 <div
                   className="h-full bg-ink"
@@ -137,7 +137,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
                   }}
                 />
               </div>
-              <span className="w-7 shrink-0 text-right font-display text-[13px] text-ink-faint">
+              <span className="min-w-7 shrink-0 whitespace-nowrap text-right font-display text-[13px] text-ink-faint">
                 {s.score}
               </span>
             </div>
@@ -154,7 +154,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
         <ul className="mt-1 flex flex-col gap-2.5">
           {odds.map((o, i) => (
             <li key={o.type} className="flex items-center gap-2.5">
-              <span className="w-14 shrink-0 font-display text-[15px] tracking-tight">{o.type}</span>
+              <span className="min-w-14 shrink-0 whitespace-nowrap font-display text-[15px] tracking-tight">{o.type}</span>
               <div className="h-3.5 flex-1 overflow-hidden border-[3px] border-ink bg-hanji">
                 <div
                   className="h-full"
@@ -165,7 +165,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
                   }}
                 />
               </div>
-              <span className="w-10 shrink-0 text-right font-display text-[13px] text-ink-faint">
+              <span className="min-w-10 shrink-0 whitespace-nowrap text-right font-display text-[13px] text-ink-faint">
                 {Math.round(o.p * 100)}%
               </span>
             </li>
