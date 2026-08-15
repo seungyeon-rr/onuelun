@@ -9,35 +9,16 @@ import { GAN_META } from '../src/data'
  */
 
 /** 닉네임이 그대로 HTML에 들어가니 여기서 반드시 막는다. */
-const esc = (s: string) =>
-  s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
+const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 const NAME_MAX = 12
 
-export function GET(request: Request) {
-  const url = new URL(request.url)
-  const raw = url.searchParams.get('b') ?? ''
-  const name = (url.searchParams.get('n') ?? '').trim().slice(0, NAME_MAX)
-  const birth = decodeBirth(raw)
+const TITLE = '오늘운 · 생일로 보는 우리 파티 궁합'
+const DESC = '생일만 넣으면 우리 파티 궁합이 나옵니다. 설치도 가입도 필요 없어요.'
 
-  // 생일이 깨진 링크는 미리보기를 꾸밀 게 없다. 앱 첫 화면으로 보낸다.
-  const app = birth ? `${url.origin}/?t=card&b=${encodeURIComponent(raw)}` : url.origin
-
-  let title = '오늘운 · 생일로 보는 우리 파티 궁합'
-  let description = '생일만 넣으면 우리 파티 궁합이 나옵니다. 설치도 가입도 필요 없어요.'
-
-  if (birth) {
-    const saju = calcSaju(birth)
-    const me = GAN_META[saju.dayGan]
-    const gan = `${saju.strong ? '신강' : '신약'} ${GAN_KO[saju.dayGan]}${ELEMENT_KO[elementOfGan(saju.dayGan)]}`
-    title = name
-      ? `${josa(name, '은는')} ${gan} '${me.character}'`
-      : `${gan} '${me.character}'`
-    description = `${me.traits} · 생일 넣으면 우리 궁합도 바로 나와요.`
-  }
-
+function page(origin: string, url: string, app: string, title: string, description: string) {
   // http-equiv refresh는 안 쓴다. 크롤러가 따라가면 정적 index.html의 og 태그를 대신 읽어간다.
-  const html = `<!doctype html>
+  return `<!doctype html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
@@ -47,8 +28,8 @@ export function GET(request: Request) {
 <meta property="og:site_name" content="오늘운" />
 <meta property="og:title" content="${esc(title)}" />
 <meta property="og:description" content="${esc(description)}" />
-<meta property="og:url" content="${esc(url.toString())}" />
-<meta property="og:image" content="${url.origin}/og.png" />
+<meta property="og:url" content="${esc(url)}" />
+<meta property="og:image" content="${esc(origin)}/og.png" />
 <meta property="og:image:width" content="1200" />
 <meta property="og:image:height" content="630" />
 <meta property="og:locale" content="ko_KR" />
@@ -57,12 +38,45 @@ export function GET(request: Request) {
 </head>
 <body><a href="${esc(app)}">오늘운으로 이동</a></body>
 </html>`
+}
 
-  return new Response(html, {
-    headers: {
-      'content-type': 'text/html; charset=utf-8',
-      // 같은 생일이면 결과가 안 바뀐다. 크롤러가 여러 번 긁어도 한 번만 계산하게 둔다.
-      'cache-control': 'public, max-age=3600, s-maxage=86400',
-    },
-  })
+/** Vercel Node 런타임의 기본 형태. 타입만 쓰려고 @vercel/node를 받지는 않는다. */
+type Req = { url?: string; headers: Record<string, string | string[] | undefined> }
+type Res = {
+  statusCode: number
+  setHeader(k: string, v: string): void
+  end(body: string): void
+}
+
+export default function handler(req: Req, res: Res) {
+  const host = String(req.headers['x-forwarded-host'] ?? req.headers.host ?? 'oneulun.vercel.app')
+  const origin = `https://${host}`
+  const url = new URL(req.url ?? '/', origin)
+
+  let app = origin
+  let title = TITLE
+  let description = DESC
+
+  // 미리보기 문구 하나 때문에 링크가 죽으면 안 된다. 뭐가 터지든 앱으로는 보낸다.
+  try {
+    const raw = url.searchParams.get('b') ?? ''
+    const name = (url.searchParams.get('n') ?? '').trim().slice(0, NAME_MAX)
+    const birth = decodeBirth(raw)
+    if (birth) {
+      app = `${origin}/?t=card&b=${encodeURIComponent(raw)}`
+      const saju = calcSaju(birth)
+      const me = GAN_META[saju.dayGan]
+      const gan = `${saju.strong ? '신강' : '신약'} ${GAN_KO[saju.dayGan]}${ELEMENT_KO[elementOfGan(saju.dayGan)]}`
+      title = name ? `${josa(name, '은는')} ${gan} '${me.character}'` : `${gan} '${me.character}'`
+      description = `${me.traits} · 생일 넣으면 우리 궁합도 바로 나와요.`
+    }
+  } catch {
+    // 기본 문구 그대로 나간다
+  }
+
+  res.statusCode = 200
+  res.setHeader('content-type', 'text/html; charset=utf-8')
+  // 같은 생일이면 결과가 안 바뀐다. 크롤러가 여러 번 긁어도 한 번만 계산하게 둔다.
+  res.setHeader('cache-control', 'public, max-age=3600, s-maxage=86400')
+  res.end(page(origin, url.toString(), app, title, description))
 }
