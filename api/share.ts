@@ -22,6 +22,21 @@ const TITLE = '오늘운 · 생일로 보는 우리 파티 궁합'
 const DESC = '생일만 넣으면 우리 파티 궁합이 나옵니다. 설치도 가입도 필요 없어요.'
 const CTA = '나도 생일 넣으면 유형이랑 궁합이 바로 나와요. 설치도 가입도 없어요.'
 
+/**
+ * 파티원 수만 센다. 사주는 안 푼다 — 여기에 import을 들이면 함수가 통째로 죽는다.
+ * p는 base64url로 감싼 "이름~생일,이름~생일"이고, 예전 링크는 감싸지 않은 같은 모양이다.
+ * 둘 다 사람마다 ~가 하나씩이라 그것만 세면 형식을 안 갈라도 된다.
+ */
+function countMembers(p: string) {
+  let plain = p
+  try {
+    plain = atob(p.replace(/-/g, '+').replace(/_/g, '/'))
+  } catch {
+    // 옛 형식이면 감싼 게 없으니 받은 그대로 센다
+  }
+  return (plain.includes('~') ? plain : p).split('~').length - 1
+}
+
 /** Vercel Node 런타임의 기본 형태. 타입만 쓰려고 @vercel/node를 받지는 않는다. */
 type Req = { url?: string; headers: Record<string, string | string[] | undefined> }
 type Res = {
@@ -52,7 +67,7 @@ export default function handler(req: Req, res: Res) {
 
   // 파티원이 담긴 링크는 문구를 안 받는다. 사람 수는 p에서 세면 되는데, 그 한 줄을 한글로 실으면
   // 주소의 3분의 1이 퍼센트 기호로 채워져 붙여넣은 링크가 지저분해진다.
-  const headcount = (pass.get('p') ?? '').split(',').filter(Boolean).length
+  const headcount = countMembers(pass.get('p') ?? '')
   const auto = headcount ? `우리 파티 ${headcount}명 기운 밸런스` : ''
 
   const title = head || auto || TITLE

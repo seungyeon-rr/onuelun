@@ -207,21 +207,80 @@ export function decodeBirth(s: string): Birth | null {
   return birth
 }
 
-// ---- 파티 멤버 <-> URL 문자열 (예: "철수~19930512-14,영희~19950203-9") ----
+// ---- 파티 멤버 <-> URL 문자열 ----
 
 export type Member = { name: string; birth: Birth }
 
-export function encodeParty(members: Member[]): string {
-  return members.map((m) => `${encodeURIComponent(m.name)}~${encodeBirth(m.birth)}`).join(',')
+/**
+ * 파티 링크는 파티원 전체를 주소에 싣는다. 그대로 두면 단톡방에 붙인 링크가 퍼센트 기호로 도배된다.
+ * 한글 한 글자가 %EC%84%9C처럼 9자가 되던 게 제일 컸다. 그래서 두 가지를 바꿨다.
+ *
+ * 1. 생일을 36진수로 접는다. 19930512-14 → bxms4e (11자 → 6자)
+ * 2. 다 이어붙인 뒤 base64url로 한 번 감싼다. 한글이 글자당 4자로 줄어든다
+ *
+ * 다섯 명 기준 151자에서 92자가 된다. 이미 나가 있는 링크는 옛 형식으로 그대로 읽는다.
+ */
+const YMD_LEN = 5
+const B36 = 36
+
+const packBirth = (b: Birth) =>
+  (b.y * 10000 + b.m * 100 + b.d).toString(B36).padStart(YMD_LEN, '0') +
+  (b.h === HOUR_UNKNOWN ? 'x' : b.h.toString(B36))
+
+function unpackBirth(s: string): Birth | null {
+  if (s.length !== YMD_LEN + 1) return null
+  const ymd = parseInt(s.slice(0, YMD_LEN), B36)
+  const h = s[YMD_LEN]
+  if (!Number.isFinite(ymd)) return null
+  const hour = h === 'x' ? HOUR_UNKNOWN : parseInt(h, B36)
+  if (!Number.isFinite(hour)) return null
+  const pad = (n: number) => String(n).padStart(2, '0')
+  // 검사와 30분 규칙은 decodeBirth 한 곳에만 두고 여기서는 형식만 되돌린다.
+  return decodeBirth(
+    `${Math.floor(ymd / 10000)}${pad(Math.floor(ymd / 100) % 100)}${pad(ymd % 100)}-${
+      hour === HOUR_UNKNOWN ? 'x' : hour
+    }`,
+  )
 }
 
+const toB64 = (s: string) =>
+  btoa(String.fromCharCode(...new TextEncoder().encode(s)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '')
+
+function fromB64(s: string): string | null {
+  try {
+    const bin = atob(s.replace(/-/g, '+').replace(/_/g, '/'))
+    return new TextDecoder().decode(Uint8Array.from(bin, (c) => c.charCodeAt(0)))
+  } catch {
+    return null
+  }
+}
+
+export function encodeParty(members: Member[]): string {
+  const plain = members
+    // 구분자로 쓰는 두 글자만 막는다. 별명에 들어갈 일이 거의 없어 통째로 인코딩할 값어치가 없다.
+    .map((m) => `${m.name.replace(/[~,]/g, ' ')}~${packBirth(m.birth)}`)
+    .join(',')
+  return toB64(plain)
+}
+
+/** 옛 형식(철수~19930512-14,…)도 읽는다. 이미 단톡방에 돌아다니는 링크가 죽으면 안 된다. */
 export function decodeParty(s: string): Member[] {
-  return s
+  if (!s) return []
+  const plain = fromB64(s)
+  const packed = plain?.includes('~') ? plain : null
+
+  return (packed ?? s)
     .split(',')
     .map((chunk) => {
-      const [name, code] = chunk.split('~')
-      const birth = code ? decodeBirth(code) : null
-      return birth ? { name: decodeURIComponent(name) || '이름없음', birth } : null
+      const cut = chunk.indexOf('~')
+      if (cut < 0) return null
+      const name = chunk.slice(0, cut)
+      const code = chunk.slice(cut + 1)
+      const birth = packed ? unpackBirth(code) : decodeBirth(code)
+      return birth ? { name: (packed ? name : decodeURIComponent(name)) || '이름없음', birth } : null
     })
     .filter((m): m is Member => m !== null)
 }

@@ -3,6 +3,7 @@ import { Solar } from 'lunar-javascript'
 import {
   calcSaju, shishenOf, ganOfShiShen, decodeBirth, encodeBirth, josa, seededPick,
   GANS, SHISHEN, ELEMENTS, HOUR_UNKNOWN, SHISHEN_KO, todayShiShen, elementOfGan,
+  encodeParty, decodeParty,
   zhiIndexOf, hourOfZhi, zhiRange, isOffDay,
 } from './saju'
 import { GAN_META, PAIR_CHEMI, DAILY, RARITY, rarityRank } from './data'
@@ -260,5 +261,37 @@ describe('유형 희귀도', () => {
   it('제일 드문 게 1위, 제일 흔한 게 20위다', () => {
     expect(rarityRank(Math.min(...all))).toBe(1)
     expect(rarityRank(Math.max(...all))).toBe(20)
+  })
+})
+
+describe('파티 링크 인코딩', () => {
+  const members = [
+    { name: '서라', birth: { y: 1993, m: 5, d: 12, h: 14 } },
+    { name: '지수', birth: { y: 1995, m: 12, d: 29, h: HOUR_UNKNOWN } },
+    { name: '으나', birth: { y: 1988, m: 3, d: 3, h: 9 } },
+  ]
+
+  it('넣은 그대로 돌아온다', () => {
+    expect(decodeParty(encodeParty(members))).toEqual(members.map((m) => ({
+      ...m,
+      birth: decodeBirth(encodeBirth(m.birth))!,
+    })))
+  })
+
+  // 이미 단톡방에 돌아다니는 링크가 죽으면 안 된다.
+  it('옛 형식 링크도 읽는다', () => {
+    const old = '%EC%84%9C%EB%9D%BC~19930512-14,%EC%A7%80%EC%88%98~19951229-x'
+    expect(decodeParty(old).map((m) => m.name)).toEqual(['서라', '지수'])
+  })
+
+  it('옛 형식보다 짧다', () => {
+    const old = members.map((m) => `${encodeURIComponent(m.name)}~${encodeBirth(m.birth)}`).join(',')
+    expect(encodeParty(members).length).toBeLessThan(old.length)
+  })
+
+  it('빈 파티와 깨진 값에서 죽지 않는다', () => {
+    expect(decodeParty('')).toEqual([])
+    expect(decodeParty('!!!!')).toEqual([])
+    expect(encodeParty([])).toBe('')
   })
 })
