@@ -12,7 +12,15 @@ import { useMyParties, useParty } from '../hooks/useParty'
 /** 한 오행이 이 비율을 넘으면 파티가 그쪽으로 쏠린 것으로 본다 (균등하면 20%) */
 const DOMINANT = 0.3
 
+/** 주소창에 남기는 주소. 여기까지는 앱 안에서만 쓴다. */
 const roomUrl = (id: string) => `${location.origin}${location.pathname}?t=party&party=${id}`
+
+/**
+ * 남한테 보내는 주소. /share를 한 번 거쳐야 카톡 미리보기에 파티 이름이 뜬다.
+ * 크롤러는 JS를 안 돌려서, 앱 주소를 그대로 보내면 누가 보내든 같은 문구가 나간다.
+ */
+const shareLink = (params: string, headline: string) =>
+  `${location.origin}/share?${params}&h=${encodeURIComponent(headline)}`
 
 const readRoomId = () => cleanPartyId(new URLSearchParams(location.search).get('party'))
 
@@ -493,7 +501,10 @@ function Room({
         />
       </Compat>
 
-      <ShareButton url={roomUrl(partyId)} label="링크 복사하기" />
+      <ShareButton
+        url={shareLink(`t=party&party=${partyId}`, `${party.name || '우리 파티'} 기운 밸런스`)}
+        label="링크 복사하기"
+      />
       <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">
         링크만 있으면 앱 설치도 가입도 없이 누구나 볼 수 있어요.
         <br />
@@ -656,7 +667,10 @@ function LocalParty({
       {members.length > 0 && (
         <>
           <ShareButton
-            url={`${location.origin}${location.pathname}?t=party&p=${encodeParty(members)}`}
+            url={shareLink(
+              `t=party&p=${encodeParty(members)}`,
+              `우리 파티 ${members.length}명 기운 밸런스`,
+            )}
             label={fromLink ? '나 넣은 새 링크 복사하기' : '링크 만들어서 복사하기'}
           />
           <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">

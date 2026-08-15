@@ -47,7 +47,7 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
     (myName.trim() ? `${josa(myName.trim(), '은는')} ` : '') +
     `${grade} ${ganName(saju.dayGan)} '${me.character}'`
   const shareUrl =
-    `${location.origin}/share?b=${encodeBirth(birth)}&h=${encodeURIComponent(headline)}`
+    `${location.origin}/share?t=card&b=${encodeBirth(birth)}&h=${encodeURIComponent(headline)}`
 
   const art = {
     el: saju.dayElement,

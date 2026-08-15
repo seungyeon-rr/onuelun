@@ -34,18 +34,21 @@ export default function handler(req: Req, res: Res) {
   const host = String(req.headers['x-forwarded-host'] ?? req.headers.host ?? 'oneulun.vercel.app')
   const origin = `https://${host}`
 
-  let birth = ''
+  const pass = new URLSearchParams()
   let head = ''
   try {
     const q = new URL(req.url ?? '/', origin).searchParams
-    // 생일은 앱이 만든 형식(20010203-14)만 통과시킨다. 리다이렉트 주소에 아무거나 못 붙게.
-    birth = (q.get('b') ?? '').slice(0, BIRTH_MAX).replace(/[^0-9x-]/gi, '')
+    for (const k of PASS) {
+      const v = q.get(k)
+      if (v) pass.set(k, v.slice(0, VALUE_MAX))
+    }
     head = (q.get('h') ?? '').trim().slice(0, HEAD_MAX)
   } catch {
     // 기본 문구로 나간다
   }
 
-  const app = birth ? `${origin}/?t=card&b=${birth}` : origin
+  const query = pass.toString()
+  const app = query ? `${origin}/?${query}` : origin
   const title = head || TITLE
   const description = head ? CTA : DESC
 
