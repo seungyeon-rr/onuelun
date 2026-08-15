@@ -1,6 +1,6 @@
 import {
   calcSaju, encodeBirth, elementOfGan, ganOfShiShen,
-  ELEMENTS, ELEMENT_KO, GAN_KO, type Birth, type Gan,
+  ELEMENTS, ELEMENT_KO, GAN_KO, josa, type Birth, type Gan,
 } from '../saju'
 import { AXES, GAN_META, ELEMENT_META, RARITY, rarityRank } from '../data'
 import { Panel, Label, ShareButton, Cat, PRESS } from '../ui'
@@ -40,11 +40,14 @@ export default function Card({ birth, myName }: { birth: Birth; myName: string }
   const rank = rarityRank(pct)
   const rarityLine = `100명 중 ${Math.round(pct)}명꼴`
 
-  // /share를 거치는 건 미리보기 때문이다. 크롤러가 여기서 이름·유형이 박힌 og 태그를 읽고,
+  // /share를 거치는 건 미리보기 때문이다. 크롤러가 여기서 og 태그를 읽고,
   // 사람은 그 페이지에서 곧바로 카드로 넘어간다.
+  // 문구는 여기서 만들어 넘긴다. 서버가 사주를 다시 풀 이유가 없다.
+  const headline =
+    (myName.trim() ? `${josa(myName.trim(), '은는')} ` : '') +
+    `${grade} ${ganName(saju.dayGan)} '${me.character}'`
   const shareUrl =
-    `${location.origin}/share?b=${encodeBirth(birth)}` +
-    (myName.trim() ? `&n=${encodeURIComponent(myName.trim())}` : '')
+    `${location.origin}/share?b=${encodeBirth(birth)}&h=${encodeURIComponent(headline)}`
 
   const art = {
     el: saju.dayElement,
