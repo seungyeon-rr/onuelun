@@ -19,8 +19,9 @@ const roomUrl = (id: string) => `${location.origin}${location.pathname}?t=party&
  * 남한테 보내는 주소. /share를 한 번 거쳐야 카톡 미리보기에 파티 이름이 뜬다.
  * 크롤러는 JS를 안 돌려서, 앱 주소를 그대로 보내면 누가 보내든 같은 문구가 나간다.
  */
-const shareLink = (params: string, headline: string) =>
-  `${location.origin}/share?${params}&h=${encodeURIComponent(headline)}`
+const shareLink = (params: string, headline?: string) =>
+  `${location.origin}/share?${params}` +
+  (headline ? `&h=${encodeURIComponent(headline)}` : '')
 
 const readRoomId = () => cleanPartyId(new URLSearchParams(location.search).get('party'))
 
@@ -667,10 +668,8 @@ function LocalParty({
       {members.length > 0 && (
         <>
           <ShareButton
-            url={shareLink(
-              `t=party&p=${encodeParty(members)}`,
-              `우리 파티 ${members.length}명 기운 밸런스`,
-            )}
+            // 문구는 안 붙인다. 사람 수는 /share가 p에서 세고, 그만큼 주소가 짧아진다.
+            url={shareLink(`t=party&p=${encodeParty(members)}`)}
             label={fromLink ? '나 넣은 새 링크 복사하기' : '링크 만들어서 복사하기'}
           />
           <p className="px-2 text-center text-[13px] leading-relaxed text-ink-faint">

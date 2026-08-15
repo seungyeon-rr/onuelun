@@ -49,8 +49,14 @@ export default function handler(req: Req, res: Res) {
 
   const query = pass.toString()
   const app = query ? `${origin}/?${query}` : origin
-  const title = head || TITLE
-  const description = head ? CTA : DESC
+
+  // 파티원이 담긴 링크는 문구를 안 받는다. 사람 수는 p에서 세면 되는데, 그 한 줄을 한글로 실으면
+  // 주소의 3분의 1이 퍼센트 기호로 채워져 붙여넣은 링크가 지저분해진다.
+  const headcount = (pass.get('p') ?? '').split(',').filter(Boolean).length
+  const auto = headcount ? `우리 파티 ${headcount}명 기운 밸런스` : ''
+
+  const title = head || auto || TITLE
+  const description = head || auto ? CTA : DESC
 
   // http-equiv refresh는 안 쓴다. 크롤러가 따라가면 정적 index.html의 og 태그를 대신 읽어간다.
   const html = `<!doctype html>
